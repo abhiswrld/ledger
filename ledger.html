@@ -21,6 +21,7 @@
   --gut:64px; --pad:22px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 body{
   background:var(--paper); color:var(--ink);
   font:400 15px/1.5 var(--sans);
@@ -33,15 +34,49 @@ body::before{
   opacity:.05; mix-blend-mode:multiply;
 }
 .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+/* ---------- cover / login ---------- */
+.auth{min-height:100vh;display:grid;place-items:center;padding:48px 24px}
+.auth-inner{width:100%;max-width:430px}
+.auth-brand{border-bottom:2px solid var(--ink);padding-bottom:26px;margin-bottom:30px}
+.wordmark{font:560 clamp(52px,10vw,68px)/1 var(--serif);letter-spacing:-.01em}
+.wordmark .dot{color:var(--accent)}
+.tagline{font:italic 400 16.5px/1.55 var(--serif);color:var(--ink-70);margin-top:14px;max-width:38ch}
+.auth-form{border-left:2px solid color-mix(in srgb,var(--accent) 55%,transparent);padding-left:26px}
+.auth-top{margin-bottom:22px}
+.auth-top h2{font:500 23px var(--serif)}
+.auth-field{display:block;margin-bottom:20px}
+.auth-field span{display:block;font:500 10px var(--mono);letter-spacing:.2em;color:var(--ink-55);margin-bottom:3px}
+.auth-field input{
+  width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-2);
+  padding:8px 0;font:500 16px var(--sans);
+}
+.auth-field input:focus{outline:none;border-bottom:2px solid var(--ink)}
+.auth-field input::placeholder{color:var(--ink-35);font-weight:400}
+.auth-err{min-height:22px;font:400 13px var(--sans);color:var(--accent);margin-bottom:6px}
+.btn-ink{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--ink);color:var(--paper);border:0;cursor:pointer;
+  font:500 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  padding:14px 18px;border-radius:4px;
+}
+.btn-ink:hover{background:var(--accent)}
+.auth-form .btn-ink{width:100%}
+
+/* ---------- app ---------- */
 .masthead{
-  display:flex;align-items:baseline;gap:16px;
+  display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px 24px;
   padding:26px 0 18px;border-bottom:2px solid var(--ink);
 }
+.mh-left{display:flex;align-items:baseline;gap:16px}
 .wordmark-s{font:560 27px/1 var(--serif)}
 .wordmark-s .dot{color:var(--accent)}
 .mh-sub{font:500 9.5px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-55)}
+.mh-right{display:flex;align-items:center;gap:20px;font:400 11px var(--mono);color:var(--ink-70)}
+.mh-out{background:none;border:0;cursor:pointer;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55)}
+.mh-out:hover{color:var(--accent)}
 
-/* running summary at the top — TODO: counts are hardcoded,
+/* running summary — TODO: counts are hardcoded,
    compute from the entries once they're real */
 .summary{padding:28px 0 6px}
 .sentence{font:italic 500 clamp(19px,2.7vw,25px)/1.45 var(--serif);max-width:66ch}
@@ -77,10 +112,42 @@ body::before{
 </style>
 </head>
 <body>
+
+<!-- cover -->
+<div id="authView" class="auth">
+  <div class="auth-inner">
+    <div class="auth-brand">
+      <h1 class="wordmark">Ledger<span class="dot">.</span></h1>
+      <p class="tagline">A quiet, well-kept book for every job application you send — interviews, offers, and the ones that got away.</p>
+    </div>
+    <form id="authForm" class="auth-form" novalidate autocomplete="off">
+      <div class="auth-top"><h2>Sign in</h2></div>
+      <label class="auth-field"><span>NAME</span>
+        <input id="authUser" maxlength="20" placeholder="e.g. sam" autocomplete="off">
+      </label>
+      <!-- TODO: actually verify this. right now it's just a text box
+           that happens to look serious -->
+      <label class="auth-field"><span>PASSWORD</span>
+        <input id="authPass" type="password" placeholder="at least four characters">
+      </label>
+      <div id="authErr" class="auth-err"></div>
+      <button type="submit" class="btn-ink">Open my ledger</button>
+    </form>
+  </div>
+</div>
+
+<!-- the book -->
+<div id="appView" hidden>
   <div class="wrap">
     <header class="masthead">
-      <div class="wordmark-s">Ledger<span class="dot">.</span></div>
-      <span class="mh-sub">Job application tracker</span>
+      <div class="mh-left">
+        <div class="wordmark-s">Ledger<span class="dot">.</span></div>
+        <span class="mh-sub">Job application tracker</span>
+      </div>
+      <div class="mh-right">
+        <span id="mhUser"></span>
+        <button type="button" class="mh-out" id="mhOut">Sign out</button>
+      </div>
     </header>
 
     <!-- hardcoded for now — wire this up to the real counts later -->
@@ -152,5 +219,35 @@ body::before{
       </article>
     </section>
   </div>
+</div>
+
+<script>
+// login doesn't verify anything yet — it just flips to the book.
+// next: hash the password, store users in localStorage, keep
+// each person's entries under their own key
+const authForm = document.getElementById('authForm');
+const authView = document.getElementById('authView');
+const appView  = document.getElementById('appView');
+
+authForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('authUser').value.trim();
+  const pass = document.getElementById('authPass').value;
+  const err  = document.getElementById('authErr');
+  if(!name || !pass){
+    err.textContent = 'Both fields are needed.';
+    return;
+  }
+  err.textContent = '';
+  document.getElementById('mhUser').textContent = name;
+  authView.hidden = true;
+  appView.hidden = false;
+});
+
+document.getElementById('mhOut').addEventListener('click', ()=>{
+  appView.hidden = true;
+  authView.hidden = false;
+});
+</script>
 </body>
 </html>
