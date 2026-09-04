@@ -2,19 +2,142 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Archivo:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  body{
-    margin:0;min-height:100vh;
-    background:#F3EEE2;color:#262016;
-    font-family:Georgia,serif;
-    display:grid;place-items:center;
-  }
-  h1{font-size:68px;letter-spacing:-1px;margin:0}
-  h1 span{color:#C04A17}
+:root{
+  --paper:#F3EEE2;
+  --ink:#262016;
+  --ink-70:rgba(38,32,22,.70); --ink-55:rgba(38,32,22,.55); --ink-35:rgba(38,32,22,.35);
+  --line:rgba(38,32,22,.15); --line-2:rgba(38,32,22,.45);
+  --accent:#C04A17;
+  --c-applied:#8F6B12; --c-interview:#C04A17; --c-offer:#3B7A4E; --c-rejected:#8A8172;
+  --mono:'Spline Sans Mono',ui-monospace,monospace;
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'Archivo',sans-serif;
+  --gut:64px; --pad:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font:400 15px/1.5 var(--sans);
+  min-height:100vh;
+}
+/* paper grain */
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  opacity:.05; mix-blend-mode:multiply;
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+.masthead{
+  display:flex;align-items:baseline;gap:16px;
+  padding:26px 0 18px;border-bottom:2px solid var(--ink);
+}
+.wordmark-s{font:560 27px/1 var(--serif)}
+.wordmark-s .dot{color:var(--accent)}
+.mh-sub{font:500 9.5px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-55)}
+
+.ledger{border-top:2px solid var(--ink);margin-top:26px;position:relative}
+/* the red margin rule — TODO: currently runs through the entry text,
+   need to keep it in the gutter somehow */
+.ledger::before{
+  content:"";position:absolute;top:0;bottom:0;left:var(--gut);width:1px;
+  background:color-mix(in srgb,var(--accent) 32%,transparent);pointer-events:none;
+}
+/* TODO: header is a grid but rows are just stacked blocks,
+   the columns don't line up. fix later */
+.gridrow{display:grid;grid-template-columns:var(--gut) minmax(0,1fr) 150px 132px 44px;align-items:center}
+.colhead{padding:11px 0 9px;border-bottom:1px solid var(--line-2)}
+.colhead span{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55)}
+.ch-no{text-align:right;padding-right:16px}
+.ch-applied{text-align:right}
+.ch-entry{padding-left:var(--pad)}
+
+.row{padding:18px 0 18px var(--pad);border-bottom:1px solid var(--line)}
+.no{font:400 11px var(--mono);color:var(--ink-55);margin-bottom:2px}
+.role{font:500 19px/1.3 var(--serif);letter-spacing:.005em}
+.meta{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font:400 11.5px var(--mono);color:var(--ink-55)}
+.meta .m-co{color:var(--ink-70);font-weight:500}
+.msep{color:var(--ink-35)}
+.status{display:inline-flex;align-items:center;gap:8px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-top:12px}
+.date{display:inline-block;margin-left:20px;font:400 12px var(--mono);color:var(--ink-70)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%}
 </style>
 </head>
 <body>
-  <h1>Ledger<span>.</span></h1>
+  <div class="wrap">
+    <header class="masthead">
+      <div class="wordmark-s">Ledger<span class="dot">.</span></div>
+      <span class="mh-sub">Job application tracker</span>
+    </header>
+
+    <!-- placeholder entries so i can style the rows,
+         real data + localStorage comes later -->
+    <section class="ledger">
+      <div class="colhead gridrow">
+        <span class="ch-no">№</span><span class="ch-entry">Entry</span><span>Status</span><span class="ch-applied">Applied</span><span></span>
+      </div>
+
+      <article class="row">
+        <div class="no">01</div>
+        <h3 class="role">Senior Product Designer</h3>
+        <div class="meta"><span class="m-co">Linear</span><span class="msep">·</span><span>Remote — EU</span><span class="msep">·</span><span>via Referral</span></div>
+        <div class="status" style="color:var(--c-interview)"><i class="dot" style="background:var(--c-interview)"></i>Interview</div>
+        <span class="date">12 May</span>
+      </article>
+
+      <article class="row">
+        <div class="no">02</div>
+        <h3 class="role">Design Lead, Payments</h3>
+        <div class="meta"><span class="m-co">Stripe</span><span class="msep">·</span><span>Berlin (hybrid)</span><span class="msep">·</span><span>via Company site</span></div>
+        <div class="status" style="color:var(--c-applied)"><i class="dot" style="background:var(--c-applied)"></i>Applied</div>
+        <span class="date">2 Jun</span>
+      </article>
+
+      <article class="row">
+        <div class="no">03</div>
+        <h3 class="role">Staff Product Designer</h3>
+        <div class="meta"><span class="m-co">Figma</span><span class="msep">·</span><span>San Francisco</span><span class="msep">·</span><span>via Recruiter</span></div>
+        <div class="status" style="color:var(--c-offer)"><i class="dot" style="background:var(--c-offer)"></i>Offer</div>
+        <span class="date">20 Apr</span>
+      </article>
+
+      <article class="row">
+        <div class="no">04</div>
+        <h3 class="role">Product Designer</h3>
+        <div class="meta"><span class="m-co">Notion</span><span class="msep">·</span><span>Remote — global</span><span class="msep">·</span><span>via LinkedIn</span></div>
+        <div class="status" style="color:var(--c-rejected)"><i class="dot" style="background:var(--c-rejected)"></i>Rejected</div>
+        <span class="date">14 Apr</span>
+      </article>
+
+      <article class="row">
+        <div class="no">05</div>
+        <h3 class="role">Product Designer, Core App</h3>
+        <div class="meta"><span class="m-co">Amplitude</span><span class="msep">·</span><span>Remote — US</span><span class="msep">·</span><span>via LinkedIn</span></div>
+        <div class="status" style="color:var(--c-applied)"><i class="dot" style="background:var(--c-applied)"></i>Applied</div>
+        <span class="date">5 Jun</span>
+      </article>
+
+      <article class="row">
+        <div class="no">06</div>
+        <h3 class="role">Principal Designer</h3>
+        <div class="meta"><span class="m-co">Duolingo</span><span class="msep">·</span><span>Pittsburgh / Remote</span><span class="msep">·</span><span>via Design community</span></div>
+        <div class="status" style="color:var(--c-interview)"><i class="dot" style="background:var(--c-interview)"></i>Interview</div>
+        <span class="date">26 May</span>
+      </article>
+
+      <article class="row">
+        <div class="no">07</div>
+        <h3 class="role">Brand Designer</h3>
+        <div class="meta"><span class="m-co">Mailchimp</span><span class="msep">·</span><span>Atlanta (hybrid)</span><span class="msep">·</span><span>via Company site</span></div>
+        <div class="status" style="color:var(--c-applied)"><i class="dot" style="background:var(--c-applied)"></i>Applied</div>
+        <span class="date">28 May</span>
+      </article>
+    </section>
+  </div>
 </body>
 </html>
