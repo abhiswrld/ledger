@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ledger</title>
+<title>Ledger — job application tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Archivo:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -41,7 +41,15 @@ body::before{
 .wordmark-s .dot{color:var(--accent)}
 .mh-sub{font:500 9.5px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-55)}
 
-.ledger{border-top:2px solid var(--ink);margin-top:26px;position:relative}
+/* running summary at the top — TODO: counts are hardcoded,
+   compute from the entries once they're real */
+.summary{padding:28px 0 6px}
+.sentence{font:italic 500 clamp(19px,2.7vw,25px)/1.45 var(--serif);max-width:66ch}
+.sentence b{font-weight:500}
+.s-interview{color:var(--c-interview)} .s-offer{color:var(--c-offer)}
+.s-applied{color:var(--c-applied)} .s-rejected{color:var(--c-rejected)}
+
+.ledger{border-top:2px solid var(--ink);margin-top:10px;position:relative}
 /* the red margin rule — TODO: currently runs through the entry text,
    need to keep it in the gutter somehow */
 .ledger::before{
@@ -74,6 +82,11 @@ body::before{
       <div class="wordmark-s">Ledger<span class="dot">.</span></div>
       <span class="mh-sub">Job application tracker</span>
     </header>
+
+    <!-- hardcoded for now — wire this up to the real counts later -->
+    <section class="summary">
+      <p class="sentence">Seven entries in the book since 14 April — <b class="s-interview">two in interviews</b>, <b class="s-offer">one offer on the table</b>, <b class="s-applied">three awaiting a reply</b>, and <b class="s-rejected">one closed</b>.</p>
+    </section>
 
     <!-- placeholder entries so i can style the rows,
          real data + localStorage comes later -->
