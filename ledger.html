@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Archivo:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#F3EEE2;
+  --paper:#F3EEE2; --paper-2:#FAF7EE;
   --ink:#262016;
   --ink-70:rgba(38,32,22,.70); --ink-55:rgba(38,32,22,.55); --ink-35:rgba(38,32,22,.35);
   --line:rgba(38,32,22,.15); --line-2:rgba(38,32,22,.45);
@@ -78,14 +78,17 @@ body::before{
 .mh-out{background:none;border:0;cursor:pointer;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55)}
 .mh-out:hover{color:var(--accent)}
 
-/* summary — TODO: compute counts from data instead of hardcoding */
 .summary{padding:28px 0 6px}
 .sentence{font:italic 500 clamp(19px,2.7vw,25px)/1.45 var(--serif);max-width:66ch}
 .sentence b{font-weight:500}
 .s-interview{color:var(--c-interview)} .s-offer{color:var(--c-offer)}
 .s-applied{color:var(--c-applied)} .s-rejected{color:var(--c-rejected)}
 
-.ledger{border-top:2px solid var(--ink);margin-top:10px;position:relative}
+/* toolbar */
+.toolbar{display:flex;justify-content:flex-end;padding:16px 0 14px;border-top:1px solid var(--line)}
+.toolbar .btn-ink{padding:11px 18px}
+
+.ledger{border-top:2px solid var(--ink);position:relative}
 /* TODO: red line runs through the entry text — move it into the gutter */
 .ledger::before{
   content:"";position:absolute;top:0;bottom:0;left:var(--gut);width:1px;
@@ -108,6 +111,65 @@ body::before{
 .status{display:inline-flex;align-items:center;gap:8px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-top:12px}
 .date{display:inline-block;margin-left:20px;font:400 12px var(--mono);color:var(--ink-70)}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%}
+
+/* ---------- modal ---------- */
+.overlay{
+  position:fixed;inset:0;z-index:50;padding:20px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--ink) 40%,transparent);
+}
+.card{
+  width:100%;max-width:640px;max-height:92vh;overflow:auto;
+  background:var(--paper-2);border:1px solid var(--ink);border-radius:6px;
+  padding:28px 32px 26px;
+}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:24px}
+.card-head h2{font:500 24px var(--serif)}
+.card-head button{background:none;border:0;cursor:pointer;color:var(--ink-55);font:400 16px var(--sans)}
+.card-head button:hover{color:var(--ink)}
+.frow2{display:grid;grid-template-columns:1.25fr 1fr;gap:0 28px}
+.field{display:block;margin-bottom:20px}
+.flabel{display:block;font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55);margin-bottom:4px}
+.flabel b{color:var(--accent);font-weight:500}
+.field input,.field textarea{
+  width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-2);
+  padding:8px 0;font:500 16px var(--sans);
+}
+.field input:focus,.field textarea:focus{outline:none;border-bottom:2px solid var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-35);font-weight:400}
+.field textarea{resize:vertical;min-height:70px;line-height:1.55}
+.segd{display:flex;border:1px solid var(--line-2);border-radius:4px;overflow:hidden}
+.segd label{flex:1;position:relative}
+.segd label + label{border-left:1px solid var(--line-2)}
+.segd input{position:absolute;opacity:0;pointer-events:none}
+.segd span{
+  display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 0;
+  font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-70);
+  cursor:pointer;
+}
+.segd input:checked + span{
+  background:color-mix(in srgb,var(--sc) 14%,transparent);color:var(--sc);
+  box-shadow:inset 0 -2px 0 var(--sc);
+}
+.formerr{min-height:20px;font:400 13px var(--sans);color:var(--accent)}
+.card-foot{display:flex;justify-content:flex-end;gap:12px;margin-top:8px}
+.btn-ghost{
+  background:none;border:1px solid var(--line-2);border-radius:4px;cursor:pointer;
+  font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  padding:11px 16px;color:var(--ink-70);
+}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+.card-foot .btn-ink{padding:11px 18px}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;left:50%;bottom:28px;z-index:60;
+  transform:translate(-50%,16px);opacity:0;pointer-events:none;
+  background:var(--ink);color:var(--paper);
+  font:500 12px var(--mono);
+  padding:12px 20px;border-radius:4px;
+  transition:transform .3s,opacity .3s;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
@@ -151,20 +213,65 @@ body::before{
       </div>
     </header>
 
-    <!-- TODO: compute from data.apps -->
     <section class="summary">
-      <p class="sentence" id="sentence">Seven entries in the book since 14 April — <b class="s-interview">two in interviews</b>, <b class="s-offer">one offer on the table</b>, <b class="s-applied">three awaiting a reply</b>, and <b class="s-rejected">one closed</b>.</p>
+      <p class="sentence" id="sentence"></p>
     </section>
+
+    <div class="toolbar">
+      <button type="button" class="btn-ink" id="addBtn">New entry</button>
+    </div>
 
     <section class="ledger">
       <div class="colhead gridrow">
         <span class="ch-no">№</span><span class="ch-entry">Entry</span><span>Status</span><span class="ch-applied">Applied</span><span></span>
       </div>
-      <!-- rows render here from data -->
       <div id="list"></div>
     </section>
   </div>
 </div>
+
+<!-- new entry modal -->
+<div id="overlay" class="overlay" hidden>
+  <form id="entryForm" class="card" novalidate autocomplete="off">
+    <div class="card-head">
+      <h2>New entry</h2>
+      <button type="button" id="fClose" aria-label="Close">✕</button>
+    </div>
+    <div class="frow2">
+      <label class="field" id="wRole"><span class="flabel">Role <b>*</b></span><input id="fRole" placeholder="Senior Product Designer"></label>
+      <label class="field" id="wCompany"><span class="flabel">Company <b>*</b></span><input id="fCompany" placeholder="Linear"></label>
+    </div>
+    <div class="field">
+      <span class="flabel">Status</span>
+      <div class="segd" role="radiogroup">
+        <label style="--sc:var(--c-applied)"><input type="radio" name="fStatus" value="applied" checked><span><i class="dot" style="background:var(--c-applied)"></i>Applied</span></label>
+        <label style="--sc:var(--c-interview)"><input type="radio" name="fStatus" value="interview"><span><i class="dot" style="background:var(--c-interview)"></i>Interview</span></label>
+        <label style="--sc:var(--c-offer)"><input type="radio" name="fStatus" value="offer"><span><i class="dot" style="background:var(--c-offer)"></i>Offer</span></label>
+        <label style="--sc:var(--c-rejected)"><input type="radio" name="fStatus" value="rejected"><span><i class="dot" style="background:var(--c-rejected)"></i>Rejected</span></label>
+      </div>
+    </div>
+    <div class="frow2">
+      <label class="field"><span class="flabel">Applied on</span><input id="fApplied" type="date"></label>
+      <label class="field"><span class="flabel">Source</span><input id="fSource" placeholder="Referral, LinkedIn…"></label>
+    </div>
+    <div class="frow2">
+      <label class="field"><span class="flabel">Salary</span><input id="fSalary" placeholder="$120k"></label>
+      <label class="field"><span class="flabel">Location</span><input id="fLocation" placeholder="Remote · Berlin"></label>
+    </div>
+    <div class="frow2">
+      <label class="field"><span class="flabel">Next step</span><input id="fNext" placeholder="Reply to recruiter"></label>
+      <label class="field"><span class="flabel">Next step date</span><input id="fNextDate" type="date"></label>
+    </div>
+    <label class="field"><span class="flabel">Notes</span><textarea id="fNotes" rows="3" placeholder="Who you spoke to, what to remember…"></textarea></label>
+    <div class="formerr" id="fErr"></div>
+    <div class="card-foot">
+      <button type="button" class="btn-ghost" id="fCancel">Cancel</button>
+      <button type="submit" class="btn-ink">Add entry</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 'use strict';
@@ -181,7 +288,10 @@ const STATUSES = {
   rejected: {label:'Rejected',  color:'var(--c-rejected)'},
 };
 
-const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MON  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONF = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+               'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
 
 let state = { user:null };
 let data  = { apps:[] };
@@ -190,8 +300,11 @@ let authMode = 'signin';
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+const todayISO = () => { const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const w = n => n <= 20 ? WORDS[n] : String(n);
 
-// sha-256(salt + password); fNV fallback for contexts without crypto.subtle
+// sha-256(salt + password); FNV fallback for contexts without crypto.subtle
 async function hashPass(pw, salt){
   const bytes = new TextEncoder().encode(salt+'::'+pw);
   if(window.crypto && crypto.subtle){
@@ -208,13 +321,11 @@ function makeSalt(){
   return Math.random().toString(16).slice(2,10);
 }
 
-// users: { name: {salt, hash} }
 function usersGet(){
   try{ return JSON.parse(localStorage.getItem(USERS_KEY)||'{}'); }catch{ return {}; }
 }
 function usersSet(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
 
-// each account's entries live under their own key
 function loadData(user){
   try{
     const raw = localStorage.getItem(DATA_KEY+user);
@@ -227,7 +338,6 @@ function save(){
   localStorage.setItem(DATA_KEY+state.user, JSON.stringify(data));
 }
 
-// new accounts start with the sample entries
 function seedApps(){
   const day = n => { const d=new Date(); d.setDate(d.getDate()+n);
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
@@ -247,10 +357,24 @@ function seedApps(){
   }));
 }
 
+// ---------- toast ----------
+let toastT;
+function toast(msg){
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>el.classList.remove('show'), 2600);
+}
+
 // ---------- rendering ----------
 function fmtDate(iso){
   const d = new Date(iso+'T00:00:00');
   return d.getDate()+' '+MON[d.getMonth()];
+}
+function fmtFull(iso){
+  const d = new Date(iso+'T00:00:00');
+  return d.getDate()+' '+MONF[d.getMonth()]+' '+d.getFullYear();
 }
 
 function rowHTML(app, idx){
@@ -258,7 +382,7 @@ function rowHTML(app, idx){
   const meta = ['<span class="m-co">'+esc(app.company)+'</span>'];
   if(app.location) meta.push('<span>'+esc(app.location)+'</span>');
   if(app.source)   meta.push('<span>via '+esc(app.source)+'</span>');
-  return '<article class="row">'+
+  return '<article class="row" data-id="'+app.id+'">'+
     '<div class="no">'+String(idx+1).padStart(2,'0')+'</div>'+
     '<h3 class="role">'+esc(app.role)+'</h3>'+
     '<div class="meta">'+meta.join('<span class="msep">·</span>')+'</div>'+
@@ -271,13 +395,104 @@ function renderList(){
   $('list').innerHTML = data.apps.map(rowHTML).join('');
 }
 
+// summary sentence, computed from the data
+function renderSummary(){
+  const c = { applied:0, interview:0, offer:0, rejected:0 };
+  data.apps.forEach(a=>{ if(c[a.status]!==undefined) c[a.status]++; });
+  const total = data.apps.length;
+
+  if(!total){
+    $('sentence').textContent = 'The ledger is blank.';
+    return;
+  }
+  const parts = [];
+  if(c.interview) parts.push('<b class="s-interview">'+w(c.interview)+' in interview'+(c.interview>1?'s':'')+'</b>');
+  if(c.offer)     parts.push('<b class="s-offer">'+w(c.offer)+' offer'+(c.offer>1?'s':'')+' on the table</b>');
+  if(c.applied)   parts.push('<b class="s-applied">'+w(c.applied)+' awaiting a reply</b>');
+  if(c.rejected)  parts.push('<b class="s-rejected">'+w(c.rejected)+' closed</b>');
+
+  const min = data.apps.reduce((m,a)=> (a.appliedDate && a.appliedDate<m) ? a.appliedDate : m, '9999');
+  const since = min !== '9999' ? ' since '+fmtDate(min) : '';
+  const listed = parts.length > 1
+    ? parts.slice(0,-1).join(', ') + ', and ' + parts[parts.length-1]
+    : parts[0] || '';
+  $('sentence').innerHTML =
+    (total===1 ? 'One entry is' : w(total)+' entries are')+' in the book'+since+
+    (listed ? ' — '+listed+'.' : '.');
+}
+
+function render(){
+  renderSummary();
+  renderList();
+}
+
 function enterApp(){
   data = loadData(state.user);
   $('mhUser').textContent = state.user;
   $('authView').hidden = true;
   $('appView').hidden = false;
-  renderList();
+  render();
 }
+
+// ---------- modal ----------
+const overlay = $('overlay'), entryForm = $('entryForm');
+
+function openModal(){
+  entryForm.reset();
+  $('fErr').textContent = '';
+  $('wRole').classList.remove('missing');
+  $('wCompany').classList.remove('missing');
+  $('fApplied').value = todayISO();
+  overlay.hidden = false;
+}
+function closeModal(){
+  overlay.hidden = true;
+}
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
+ $('fClose').addEventListener('click', closeModal);
+ $('fCancel').addEventListener('click', closeModal);
+ $('addBtn').addEventListener('click', openModal);
+
+// clear the red underline on missing fields as you type
+['fRole','fCompany'].forEach(id=>{
+  $(id).addEventListener('input', e=>e.target.closest('.field').classList.remove('missing'));
+});
+
+entryForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const role = $('fRole').value.trim();
+  const company = $('fCompany').value.trim();
+  $('fErr').textContent = '';
+  $('wRole').classList.toggle('missing', !role);
+  $('wCompany').classList.toggle('missing', !company);
+  if(!role || !company){
+    $('fErr').textContent = 'Role and company are required.';
+    return;
+  }
+  const status = (entryForm.querySelector('input[name="fStatus"]:checked')||{}).value || 'applied';
+  const app = {
+    id: uid(),
+    role, company, status,
+    appliedDate: $('fApplied').value || '',
+    source:   $('fSource').value.trim(),
+    salary:   $('fSalary').value.trim(),
+    location: $('fLocation').value.trim(),
+    nextStep: $('fNext').value.trim(),
+    nextDate: $('fNextDate').value || '',
+    notes:    $('fNotes').value.trim(),
+    created:  Date.now(),
+    updated:  Date.now()
+  };
+  data.apps.unshift(app);
+  save();
+  render();
+  closeModal();
+  toast('Entry added');
+});
+
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && !overlay.hidden) closeModal();
+});
 
 // ---------- auth ----------
 function setAuthMode(mode){
