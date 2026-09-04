@@ -43,8 +43,9 @@ body::before{
 .wordmark .dot{color:var(--accent)}
 .tagline{font:italic 400 16.5px/1.55 var(--serif);color:var(--ink-70);margin-top:14px;max-width:38ch}
 .auth-form{border-left:2px solid color-mix(in srgb,var(--accent) 55%,transparent);padding-left:26px}
-.auth-top{margin-bottom:22px}
+.auth-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px}
 .auth-top h2{font:500 23px var(--serif)}
+.auth-toggle{background:none;border:0;cursor:pointer;color:var(--accent);font:400 13px var(--sans)}
 .auth-field{display:block;margin-bottom:20px}
 .auth-field span{display:block;font:500 10px var(--mono);letter-spacing:.2em;color:var(--ink-55);margin-bottom:3px}
 .auth-field input{
@@ -62,6 +63,7 @@ body::before{
 }
 .btn-ink:hover{background:var(--accent)}
 .auth-form .btn-ink{width:100%}
+.auth-foot{margin-top:22px;font:400 11px/1.7 var(--mono);color:var(--ink-55)}
 
 /* ---------- app ---------- */
 .masthead{
@@ -76,8 +78,7 @@ body::before{
 .mh-out{background:none;border:0;cursor:pointer;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55)}
 .mh-out:hover{color:var(--accent)}
 
-/* running summary — TODO: counts are hardcoded,
-   compute from the entries once they're real */
+/* summary — TODO: compute counts from data instead of hardcoding */
 .summary{padding:28px 0 6px}
 .sentence{font:italic 500 clamp(19px,2.7vw,25px)/1.45 var(--serif);max-width:66ch}
 .sentence b{font-weight:500}
@@ -85,14 +86,12 @@ body::before{
 .s-applied{color:var(--c-applied)} .s-rejected{color:var(--c-rejected)}
 
 .ledger{border-top:2px solid var(--ink);margin-top:10px;position:relative}
-/* the red margin rule — TODO: currently runs through the entry text,
-   need to keep it in the gutter somehow */
+/* TODO: red line runs through the entry text — move it into the gutter */
 .ledger::before{
   content:"";position:absolute;top:0;bottom:0;left:var(--gut);width:1px;
   background:color-mix(in srgb,var(--accent) 32%,transparent);pointer-events:none;
 }
-/* TODO: header is a grid but rows are just stacked blocks,
-   the columns don't line up. fix later */
+/* TODO: header is a grid, rows are stacked — columns don't line up */
 .gridrow{display:grid;grid-template-columns:var(--gut) minmax(0,1fr) 150px 132px 44px;align-items:center}
 .colhead{padding:11px 0 9px;border-bottom:1px solid var(--line-2)}
 .colhead span{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55)}
@@ -121,18 +120,20 @@ body::before{
       <p class="tagline">A quiet, well-kept book for every job application you send — interviews, offers, and the ones that got away.</p>
     </div>
     <form id="authForm" class="auth-form" novalidate autocomplete="off">
-      <div class="auth-top"><h2>Sign in</h2></div>
+      <div class="auth-top">
+        <h2 id="authTitle">Sign in</h2>
+        <button type="button" id="authToggle" class="auth-toggle">Create a ledger</button>
+      </div>
       <label class="auth-field"><span>NAME</span>
-        <input id="authUser" maxlength="20" placeholder="e.g. sam" autocomplete="off">
+        <input id="authUser" maxlength="20" placeholder="e.g. sam" autocomplete="username">
       </label>
-      <!-- TODO: actually verify this. right now it's just a text box
-           that happens to look serious -->
       <label class="auth-field"><span>PASSWORD</span>
-        <input id="authPass" type="password" placeholder="at least four characters">
+        <input id="authPass" type="password" placeholder="at least four characters" autocomplete="current-password">
       </label>
       <div id="authErr" class="auth-err"></div>
-      <button type="submit" class="btn-ink">Open my ledger</button>
+      <button type="submit" class="btn-ink" id="authSubmit">Open my ledger</button>
     </form>
+    <p class="auth-foot">Passwords are salted &amp; hashed before being stored locally. Nothing ever leaves this device — clearing the browser clears the book.</p>
   </div>
 </div>
 
@@ -150,104 +151,199 @@ body::before{
       </div>
     </header>
 
-    <!-- hardcoded for now — wire this up to the real counts later -->
+    <!-- TODO: compute from data.apps -->
     <section class="summary">
-      <p class="sentence">Seven entries in the book since 14 April — <b class="s-interview">two in interviews</b>, <b class="s-offer">one offer on the table</b>, <b class="s-applied">three awaiting a reply</b>, and <b class="s-rejected">one closed</b>.</p>
+      <p class="sentence" id="sentence">Seven entries in the book since 14 April — <b class="s-interview">two in interviews</b>, <b class="s-offer">one offer on the table</b>, <b class="s-applied">three awaiting a reply</b>, and <b class="s-rejected">one closed</b>.</p>
     </section>
 
-    <!-- placeholder entries so i can style the rows,
-         real data + localStorage comes later -->
     <section class="ledger">
       <div class="colhead gridrow">
         <span class="ch-no">№</span><span class="ch-entry">Entry</span><span>Status</span><span class="ch-applied">Applied</span><span></span>
       </div>
-
-      <article class="row">
-        <div class="no">01</div>
-        <h3 class="role">Senior Product Designer</h3>
-        <div class="meta"><span class="m-co">Linear</span><span class="msep">·</span><span>Remote — EU</span><span class="msep">·</span><span>via Referral</span></div>
-        <div class="status" style="color:var(--c-interview)"><i class="dot" style="background:var(--c-interview)"></i>Interview</div>
-        <span class="date">12 May</span>
-      </article>
-
-      <article class="row">
-        <div class="no">02</div>
-        <h3 class="role">Design Lead, Payments</h3>
-        <div class="meta"><span class="m-co">Stripe</span><span class="msep">·</span><span>Berlin (hybrid)</span><span class="msep">·</span><span>via Company site</span></div>
-        <div class="status" style="color:var(--c-applied)"><i class="dot" style="background:var(--c-applied)"></i>Applied</div>
-        <span class="date">2 Jun</span>
-      </article>
-
-      <article class="row">
-        <div class="no">03</div>
-        <h3 class="role">Staff Product Designer</h3>
-        <div class="meta"><span class="m-co">Figma</span><span class="msep">·</span><span>San Francisco</span><span class="msep">·</span><span>via Recruiter</span></div>
-        <div class="status" style="color:var(--c-offer)"><i class="dot" style="background:var(--c-offer)"></i>Offer</div>
-        <span class="date">20 Apr</span>
-      </article>
-
-      <article class="row">
-        <div class="no">04</div>
-        <h3 class="role">Product Designer</h3>
-        <div class="meta"><span class="m-co">Notion</span><span class="msep">·</span><span>Remote — global</span><span class="msep">·</span><span>via LinkedIn</span></div>
-        <div class="status" style="color:var(--c-rejected)"><i class="dot" style="background:var(--c-rejected)"></i>Rejected</div>
-        <span class="date">14 Apr</span>
-      </article>
-
-      <article class="row">
-        <div class="no">05</div>
-        <h3 class="role">Product Designer, Core App</h3>
-        <div class="meta"><span class="m-co">Amplitude</span><span class="msep">·</span><span>Remote — US</span><span class="msep">·</span><span>via LinkedIn</span></div>
-        <div class="status" style="color:var(--c-applied)"><i class="dot" style="background:var(--c-applied)"></i>Applied</div>
-        <span class="date">5 Jun</span>
-      </article>
-
-      <article class="row">
-        <div class="no">06</div>
-        <h3 class="role">Principal Designer</h3>
-        <div class="meta"><span class="m-co">Duolingo</span><span class="msep">·</span><span>Pittsburgh / Remote</span><span class="msep">·</span><span>via Design community</span></div>
-        <div class="status" style="color:var(--c-interview)"><i class="dot" style="background:var(--c-interview)"></i>Interview</div>
-        <span class="date">26 May</span>
-      </article>
-
-      <article class="row">
-        <div class="no">07</div>
-        <h3 class="role">Brand Designer</h3>
-        <div class="meta"><span class="m-co">Mailchimp</span><span class="msep">·</span><span>Atlanta (hybrid)</span><span class="msep">·</span><span>via Company site</span></div>
-        <div class="status" style="color:var(--c-applied)"><i class="dot" style="background:var(--c-applied)"></i>Applied</div>
-        <span class="date">28 May</span>
-      </article>
+      <!-- rows render here from data -->
+      <div id="list"></div>
     </section>
   </div>
 </div>
 
 <script>
-// login doesn't verify anything yet — it just flips to the book.
-// next: hash the password, store users in localStorage, keep
-// each person's entries under their own key
-const authForm = document.getElementById('authForm');
-const authView = document.getElementById('authView');
-const appView  = document.getElementById('appView');
+'use strict';
 
-authForm.addEventListener('submit', e=>{
-  e.preventDefault();
-  const name = document.getElementById('authUser').value.trim();
-  const pass = document.getElementById('authPass').value;
-  const err  = document.getElementById('authErr');
-  if(!name || !pass){
-    err.textContent = 'Both fields are needed.';
-    return;
+// storage keys
+const USERS_KEY  = 'ledger.users.v1';
+const DATA_KEY   = 'ledger.data.v1.';   // + username
+const SESSION_KEY = 'ledger.session.v1';
+
+const STATUSES = {
+  applied:  {label:'Applied',   color:'var(--c-applied)'},
+  interview:{label:'Interview', color:'var(--c-interview)'},
+  offer:    {label:'Offer',     color:'var(--c-offer)'},
+  rejected: {label:'Rejected',  color:'var(--c-rejected)'},
+};
+
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+let state = { user:null };
+let data  = { apps:[] };
+let authMode = 'signin';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+
+// sha-256(salt + password); fNV fallback for contexts without crypto.subtle
+async function hashPass(pw, salt){
+  const bytes = new TextEncoder().encode(salt+'::'+pw);
+  if(window.crypto && crypto.subtle){
+    const buf = await crypto.subtle.digest('SHA-256', bytes);
+    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
   }
+  let h=2166136261; for(const b of bytes){ h^=b; h=Math.imul(h,16777619)>>>0; }
+  return 'f'+h.toString(16);
+}
+function makeSalt(){
+  if(window.crypto && crypto.getRandomValues){
+    return [...crypto.getRandomValues(new Uint8Array(8))].map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  return Math.random().toString(16).slice(2,10);
+}
+
+// users: { name: {salt, hash} }
+function usersGet(){
+  try{ return JSON.parse(localStorage.getItem(USERS_KEY)||'{}'); }catch{ return {}; }
+}
+function usersSet(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+
+// each account's entries live under their own key
+function loadData(user){
+  try{
+    const raw = localStorage.getItem(DATA_KEY+user);
+    if(raw){ const d = JSON.parse(raw); if(d && Array.isArray(d.apps)) return d; }
+  }catch{}
+  return { apps:[] };
+}
+function save(){
+  if(!state.user) return;
+  localStorage.setItem(DATA_KEY+state.user, JSON.stringify(data));
+}
+
+// new accounts start with the sample entries
+function seedApps(){
+  const day = n => { const d=new Date(); d.setDate(d.getDate()+n);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+  const t = Date.now();
+  const rows = [
+    ['Senior Product Designer','Linear','interview',-16,'Referral','Remote — EU'],
+    ['Design Lead, Payments','Stripe','applied',-9,'Company site','Berlin (hybrid)'],
+    ['Staff Product Designer','Figma','offer',-28,'Recruiter','San Francisco'],
+    ['Product Designer','Notion','rejected',-34,'LinkedIn','Remote — global'],
+    ['Product Designer, Core App','Amplitude','applied',-3,'LinkedIn','Remote — US'],
+    ['Principal Designer','Duolingo','interview',-12,'Design community','Pittsburgh / Remote'],
+    ['Brand Designer','Mailchimp','applied',-6,'Company site','Atlanta (hybrid)'],
+  ];
+  return rows.map((r,i)=>({
+    id:uid(), role:r[0], company:r[1], status:r[2], appliedDate:day(r[3]),
+    source:r[4], location:r[5], notes:'', created:t-i*36e5, updated:t
+  }));
+}
+
+// ---------- rendering ----------
+function fmtDate(iso){
+  const d = new Date(iso+'T00:00:00');
+  return d.getDate()+' '+MON[d.getMonth()];
+}
+
+function rowHTML(app, idx){
+  const st = STATUSES[app.status] || STATUSES.applied;
+  const meta = ['<span class="m-co">'+esc(app.company)+'</span>'];
+  if(app.location) meta.push('<span>'+esc(app.location)+'</span>');
+  if(app.source)   meta.push('<span>via '+esc(app.source)+'</span>');
+  return '<article class="row">'+
+    '<div class="no">'+String(idx+1).padStart(2,'0')+'</div>'+
+    '<h3 class="role">'+esc(app.role)+'</h3>'+
+    '<div class="meta">'+meta.join('<span class="msep">·</span>')+'</div>'+
+    '<div class="status" style="color:'+st.color+'"><i class="dot" style="background:'+st.color+'"></i>'+st.label+'</div>'+
+    '<span class="date">'+(app.appliedDate ? fmtDate(app.appliedDate) : '—')+'</span>'+
+  '</article>';
+}
+
+function renderList(){
+  $('list').innerHTML = data.apps.map(rowHTML).join('');
+}
+
+function enterApp(){
+  data = loadData(state.user);
+  $('mhUser').textContent = state.user;
+  $('authView').hidden = true;
+  $('appView').hidden = false;
+  renderList();
+}
+
+// ---------- auth ----------
+function setAuthMode(mode){
+  authMode = mode;
+  const reg = mode === 'register';
+  $('authTitle').textContent  = reg ? 'Create your ledger' : 'Sign in';
+  $('authToggle').textContent = reg ? 'I have an account — sign in' : 'Create a ledger';
+  $('authSubmit').textContent = reg ? 'Start my ledger' : 'Open my ledger';
+  $('authPass').setAttribute('autocomplete', reg ? 'new-password' : 'current-password');
+  $('authErr').textContent = '';
+}
+ $('authToggle').addEventListener('click', ()=>setAuthMode(authMode==='signin' ? 'register' : 'signin'));
+
+ $('authForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const err = $('authErr');
+  const name = $('authUser').value.trim().toLowerCase();
+  const pass = $('authPass').value;
   err.textContent = '';
-  document.getElementById('mhUser').textContent = name;
-  authView.hidden = true;
-  appView.hidden = false;
+  if(!name || !pass){ err.textContent = 'Both fields are needed.'; return; }
+
+  const users = usersGet();
+  if(authMode === 'register'){
+    if(!/^[a-z0-9_.-]{3,20}$/.test(name)){ err.textContent = 'Name: 3–20 letters, numbers, . _ or -'; return; }
+    if(pass.length < 4){ err.textContent = 'Password must be at least 4 characters.'; return; }
+    if(users[name]){ err.textContent = 'That name already exists — sign in instead.'; return; }
+    const salt = makeSalt();
+    users[name] = { salt, hash: await hashPass(pass, salt) };
+    usersSet(users);
+    state.user = name;
+    data = { apps: seedApps() };
+    save();
+  }else{
+    const rec = users[name];
+    if(!rec){ err.textContent = 'No account under that name.'; return; }
+    if(await hashPass(pass, rec.salt) !== rec.hash){
+      err.textContent = 'Wrong password.';
+      return;
+    }
+    state.user = name;
+  }
+  localStorage.setItem(SESSION_KEY, name);
+  enterApp();
 });
 
-document.getElementById('mhOut').addEventListener('click', ()=>{
-  appView.hidden = true;
-  authView.hidden = false;
+ $('mhOut').addEventListener('click', ()=>{
+  localStorage.removeItem(SESSION_KEY);
+  state.user = null;
+  $('appView').hidden = true;
+  $('authView').hidden = false;
+  $('authPass').value = '';
+  setAuthMode('signin');
 });
+
+// restore session on load
+(function init(){
+  try{
+    const s = localStorage.getItem(SESSION_KEY);
+    if(s && usersGet()[s]){
+      state.user = s;
+      enterApp();
+      return;
+    }
+  }catch{}
+  $('authView').hidden = false;
+})();
 </script>
 </body>
 </html>
