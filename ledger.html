@@ -34,6 +34,7 @@ body::before{
   opacity:.05; mix-blend-mode:multiply;
 }
 .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+.ic{width:13px;height:13px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* ---------- cover / login ---------- */
 .auth{min-height:100vh;display:grid;place-items:center;padding:48px 24px}
@@ -102,7 +103,9 @@ body::before{
 .ch-applied{text-align:right}
 .ch-entry{padding-left:var(--pad)}
 
-.row{padding:18px 0 18px var(--pad);border-bottom:1px solid var(--line)}
+.row{position:relative;padding:18px 0 18px var(--pad);border-bottom:1px solid var(--line);cursor:pointer}
+.row:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.row.open{background:color-mix(in srgb,var(--ink) 3.5%,transparent)}
 .no{font:400 11px var(--mono);color:var(--ink-55);margin-bottom:2px}
 .role{font:500 19px/1.3 var(--serif);letter-spacing:.005em}
 .meta{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font:400 11.5px var(--mono);color:var(--ink-55)}
@@ -111,6 +114,39 @@ body::before{
 .status{display:inline-flex;align-items:center;gap:8px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-top:12px}
 .date{display:inline-block;margin-left:20px;font:400 12px var(--mono);color:var(--ink-70)}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%}
+.chev{position:absolute;right:0;top:18px;color:var(--ink-35)}
+.chev svg{transition:transform .25s}
+.row.open .chev svg{transform:rotate(180deg)}
+
+/* expanded detail — plain toggle for now, TODO: animate */
+.detail{display:none}
+.row.open .detail{display:block}
+.detail-body{padding:16px 0 10px}
+.facts{display:flex;flex-wrap:wrap;gap:14px 44px}
+.facts dt{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55);margin-bottom:3px}
+.facts dd{font:400 14px var(--sans)}
+.notes{margin-top:18px;padding-left:16px;border-left:2px solid var(--line-2);font:italic 400 15px/1.6 var(--serif);color:var(--ink-70);white-space:pre-wrap;max-width:70ch}
+.detail-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-top:20px}
+.markas{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.markas .mlabel{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55)}
+.markbtn{
+  background:none;cursor:pointer;
+  font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  padding:8px 13px;border:1px solid color-mix(in srgb,var(--sc) 55%,transparent);
+  color:var(--sc);border-radius:3px;
+}
+.markbtn:hover{background:color-mix(in srgb,var(--sc) 10%,transparent)}
+.markbtn.cur{background:color-mix(in srgb,var(--sc) 15%,transparent);border-color:var(--sc)}
+.tools{display:flex;gap:10px}
+.tool{
+  display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+  font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  padding:8px 13px;border:1px solid var(--line-2);color:var(--ink-70);border-radius:3px;
+  background:none;
+}
+.tool:hover{border-color:var(--ink);color:var(--ink)}
+.tool-del:hover{border-color:var(--accent);color:var(--accent)}
+.tool-del.armed{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:var(--accent);color:var(--accent)}
 
 /* ---------- modal ---------- */
 .overlay{
@@ -174,6 +210,15 @@ body::before{
 </head>
 <body>
 
+<!-- icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></symbol>
+  </defs>
+</svg>
+
 <!-- cover -->
 <div id="authView" class="auth">
   <div class="auth-inner">
@@ -230,11 +275,11 @@ body::before{
   </div>
 </div>
 
-<!-- new entry modal -->
+<!-- entry modal (new + edit) -->
 <div id="overlay" class="overlay" hidden>
   <form id="entryForm" class="card" novalidate autocomplete="off">
     <div class="card-head">
-      <h2>New entry</h2>
+      <h2 id="formTitle">New entry</h2>
       <button type="button" id="fClose" aria-label="Close">✕</button>
     </div>
     <div class="frow2">
@@ -266,7 +311,7 @@ body::before{
     <div class="formerr" id="fErr"></div>
     <div class="card-foot">
       <button type="button" class="btn-ghost" id="fCancel">Cancel</button>
-      <button type="submit" class="btn-ink">Add entry</button>
+      <button type="submit" class="btn-ink" id="fSubmit">Add entry</button>
     </div>
   </form>
 </div>
@@ -287,6 +332,7 @@ const STATUSES = {
   offer:    {label:'Offer',     color:'var(--c-offer)'},
   rejected: {label:'Rejected',  color:'var(--c-rejected)'},
 };
+const STATUS_IDS = Object.keys(STATUSES);
 
 const MON  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONF = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -295,10 +341,13 @@ const WORDS = ['zero','one','two','three','four','five','six','seven','eight','n
 
 let state = { user:null };
 let data  = { apps:[] };
+let view  = { openId:null };
 let authMode = 'signin';
+let editingId = null;
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icon = n => '<svg class="ic"><use href="#i-'+n+'"/></svg>';
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
 const todayISO = () => { const d=new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
@@ -343,17 +392,19 @@ function seedApps(){
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
   const t = Date.now();
   const rows = [
-    ['Senior Product Designer','Linear','interview',-16,'Referral','Remote — EU'],
-    ['Design Lead, Payments','Stripe','applied',-9,'Company site','Berlin (hybrid)'],
-    ['Staff Product Designer','Figma','offer',-28,'Recruiter','San Francisco'],
-    ['Product Designer','Notion','rejected',-34,'LinkedIn','Remote — global'],
-    ['Product Designer, Core App','Amplitude','applied',-3,'LinkedIn','Remote — US'],
-    ['Principal Designer','Duolingo','interview',-12,'Design community','Pittsburgh / Remote'],
-    ['Brand Designer','Mailchimp','applied',-6,'Company site','Atlanta (hybrid)'],
+    ['Senior Product Designer','Linear','interview',-16,'Referral','Remote — EU','Portfolio review with the design team',4,'Anna said the team loved the writing sample — lead with the design-systems case study.'],
+    ['Design Lead, Payments','Stripe','applied',-9,'Company site','Berlin (hybrid)','$155k',null,''],
+    ['Staff Product Designer','Figma','offer',-28,'Recruiter','San Francisco','$185k','Respond to the offer — decision deadline',6,'Verbal offer Tuesday: base 185, equity TBD.'],
+    ['Product Designer','Notion','rejected',-34,'LinkedIn','Remote — global','',null,'','Standard rejection after two weeks.'],
+    ['Product Designer, Core App','Amplitude','applied',-3,'LinkedIn','Remote — US','$140k',null,''],
+    ['Principal Designer','Duolingo','interview',-12,'Design community','Pittsburgh / Remote','$170k','Second round — live critique whiteboard',9,'The whiteboard is a live critique exercise.'],
+    ['Brand Designer','Mailchimp','applied',-6,'Company site','Atlanta (hybrid)','$110k','Follow up if no reply by Friday',5,''],
   ];
   return rows.map((r,i)=>({
     id:uid(), role:r[0], company:r[1], status:r[2], appliedDate:day(r[3]),
-    source:r[4], location:r[5], notes:'', created:t-i*36e5, updated:t
+    source:r[4], location:r[5], salary:r[6], nextStep:r[7],
+    nextDate: r[8]==null ? '' : day(r[8]), notes:r[9],
+    created:t-i*36e5, updated:t
   }));
 }
 
@@ -379,15 +430,40 @@ function fmtFull(iso){
 
 function rowHTML(app, idx){
   const st = STATUSES[app.status] || STATUSES.applied;
+  const open = view.openId === app.id;
+
   const meta = ['<span class="m-co">'+esc(app.company)+'</span>'];
   if(app.location) meta.push('<span>'+esc(app.location)+'</span>');
   if(app.source)   meta.push('<span>via '+esc(app.source)+'</span>');
-  return '<article class="row" data-id="'+app.id+'">'+
+
+  const nextFull = (app.nextStep||'') + (app.nextDate ? ' — '+fmtFull(app.nextDate) : '');
+  const facts = [
+    ['Company', app.company], ['Location', app.location], ['Source', app.source],
+    ['Salary', app.salary],
+    ['Applied', app.appliedDate ? fmtFull(app.appliedDate) : ''],
+    ['Next step', nextFull]
+  ].filter(f=>f[1]);
+
+  return '<article class="row'+(open?' open':'')+'" data-id="'+app.id+'">'+
     '<div class="no">'+String(idx+1).padStart(2,'0')+'</div>'+
     '<h3 class="role">'+esc(app.role)+'</h3>'+
     '<div class="meta">'+meta.join('<span class="msep">·</span>')+'</div>'+
     '<div class="status" style="color:'+st.color+'"><i class="dot" style="background:'+st.color+'"></i>'+st.label+'</div>'+
     '<span class="date">'+(app.appliedDate ? fmtDate(app.appliedDate) : '—')+'</span>'+
+    '<div class="chev">'+icon('chev')+'</div>'+
+    '<div class="detail"><div class="detail-body">'+
+      (facts.length ? '<dl class="facts">'+facts.map(f=>'<div><dt>'+f[0]+'</dt><dd>'+esc(f[1])+'</dd></div>').join('')+'</dl>' : '')+
+      (app.notes ? '<blockquote class="notes">'+esc(app.notes)+'</blockquote>' : '')+
+      '<div class="detail-actions">'+
+        '<div class="markas"><span class="mlabel">Mark as</span>'+
+          STATUS_IDS.map(id=>'<button type="button" class="markbtn'+(id===app.status?' cur':'')+'" data-status="'+id+'" style="--sc:'+STATUSES[id].color+'">'+STATUSES[id].label+'</button>').join('')+
+        '</div>'+
+        '<div class="tools">'+
+          '<button type="button" class="tool act-edit">'+icon('pencil')+'<span>Edit</span></button>'+
+          '<button type="button" class="tool tool-del act-del">'+icon('trash')+'<span>Delete</span></button>'+
+        '</div>'+
+      '</div>'+
+    '</div></div>'+
   '</article>';
 }
 
@@ -395,7 +471,6 @@ function renderList(){
   $('list').innerHTML = data.apps.map(rowHTML).join('');
 }
 
-// summary sentence, computed from the data
 function renderSummary(){
   const c = { applied:0, interview:0, offer:0, rejected:0 };
   data.apps.forEach(a=>{ if(c[a.status]!==undefined) c[a.status]++; });
@@ -428,32 +503,94 @@ function render(){
 
 function enterApp(){
   data = loadData(state.user);
+  view.openId = null;
   $('mhUser').textContent = state.user;
   $('authView').hidden = true;
   $('appView').hidden = false;
   render();
 }
 
-// ---------- modal ----------
+// ---------- row interactions ----------
+function toggleRow(id){
+  view.openId = view.openId === id ? null : id;
+  renderList();
+}
+
+function changeStatus(id, status){
+  const app = data.apps.find(a=>a.id===id);
+  if(!app || app.status === status) return;
+  app.status = status;
+  app.updated = Date.now();
+  save();
+  render();
+}
+
+function handleDelete(btn, id){
+  if(btn.classList.contains('armed')){
+    data.apps = data.apps.filter(a=>a.id!==id);
+    if(view.openId === id) view.openId = null;
+    save();
+    render();
+    toast('Entry removed');
+  }else{
+    // second click confirms
+    btn.classList.add('armed');
+    btn.querySelector('span').textContent = 'Confirm removal';
+    setTimeout(()=>{ if(btn.isConnected){ btn.classList.remove('armed'); btn.querySelector('span').textContent='Delete'; } }, 2600);
+  }
+}
+
+ $('list').addEventListener('click', e=>{
+  const row = e.target.closest('.row');
+  if(!row) return;
+  const id = row.dataset.id;
+  const btn = e.target.closest('button');
+  if(btn){
+    if(btn.dataset.status){ changeStatus(id, btn.dataset.status); return; }
+    if(btn.classList.contains('act-edit')){ openModal(id); return; }
+    if(btn.classList.contains('act-del')){ handleDelete(btn, id); return; }
+    return;
+  }
+  // don't collapse when clicking inside the open detail
+  if(e.target.closest('.detail')) return;
+  toggleRow(id);
+});
+
+// ---------- modal (new + edit) ----------
 const overlay = $('overlay'), entryForm = $('entryForm');
 
-function openModal(){
-  entryForm.reset();
+function openModal(id){
+  editingId = id || null;
   $('fErr').textContent = '';
   $('wRole').classList.remove('missing');
   $('wCompany').classList.remove('missing');
-  $('fApplied').value = todayISO();
+  const a = id ? data.apps.find(x=>x.id===id) : null;
+  $('fRole').value = a ? a.role : '';
+  $('fCompany').value = a ? a.company : '';
+  const radio = a && entryForm.querySelector('input[name="fStatus"][value="'+a.status+'"]');
+  if(radio) radio.checked = true;
+  else entryForm.querySelector('input[name="fStatus"][value="applied"]').checked = true;
+  $('fApplied').value = a ? (a.appliedDate||'') : todayISO();
+  $('fSource').value = a ? (a.source||'') : '';
+  $('fSalary').value = a ? (a.salary||'') : '';
+  $('fLocation').value = a ? (a.location||'') : '';
+  $('fNext').value = a ? (a.nextStep||'') : '';
+  $('fNextDate').value = a ? (a.nextDate||'') : '';
+  $('fNotes').value = a ? (a.notes||'') : '';
+  $('formTitle').textContent = a ? 'Edit entry' : 'New entry';
+  $('fSubmit').textContent = a ? 'Save changes' : 'Add entry';
   overlay.hidden = false;
+  $('fRole').focus();
 }
 function closeModal(){
   overlay.hidden = true;
+  editingId = null;
 }
 overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
  $('fClose').addEventListener('click', closeModal);
  $('fCancel').addEventListener('click', closeModal);
- $('addBtn').addEventListener('click', openModal);
+ $('addBtn').addEventListener('click', ()=>openModal(null));
 
-// clear the red underline on missing fields as you type
 ['fRole','fCompany'].forEach(id=>{
   $(id).addEventListener('input', e=>e.target.closest('.field').classList.remove('missing'));
 });
@@ -470,8 +607,7 @@ entryForm.addEventListener('submit', e=>{
     return;
   }
   const status = (entryForm.querySelector('input[name="fStatus"]:checked')||{}).value || 'applied';
-  const app = {
-    id: uid(),
+  const fields = {
     role, company, status,
     appliedDate: $('fApplied').value || '',
     source:   $('fSource').value.trim(),
@@ -480,14 +616,20 @@ entryForm.addEventListener('submit', e=>{
     nextStep: $('fNext').value.trim(),
     nextDate: $('fNextDate').value || '',
     notes:    $('fNotes').value.trim(),
-    created:  Date.now(),
     updated:  Date.now()
   };
-  data.apps.unshift(app);
-  save();
-  render();
-  closeModal();
-  toast('Entry added');
+  if(editingId){
+    Object.assign(data.apps.find(x=>x.id===editingId), fields);
+    view.openId = editingId;
+    save(); render(); closeModal();
+    toast('Entry updated');
+  }else{
+    const app = Object.assign({ id:uid(), created:Date.now() }, fields);
+    data.apps.unshift(app);
+    view.openId = app.id;
+    save(); render(); closeModal();
+    toast('Entry added');
+  }
 });
 
 document.addEventListener('keydown', e=>{
