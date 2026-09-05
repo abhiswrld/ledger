@@ -118,7 +118,7 @@ body::before{
 .chev svg{transition:transform .25s}
 .row.open .chev svg{transform:rotate(180deg)}
 
-/* expanded detail — plain toggle for now, TODO: animate */
+/* expanded detail — TODO: animate the toggle */
 .detail{display:none}
 .row.open .detail{display:block}
 .detail-body{padding:16px 0 10px}
@@ -129,14 +129,14 @@ body::before{
 .detail-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-top:20px}
 .markas{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .markas .mlabel{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55)}
-.markbtn{
+.stampbtn{
   background:none;cursor:pointer;
   font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;
   padding:8px 13px;border:1px solid color-mix(in srgb,var(--sc) 55%,transparent);
   color:var(--sc);border-radius:3px;
 }
-.markbtn:hover{background:color-mix(in srgb,var(--sc) 10%,transparent)}
-.markbtn.cur{background:color-mix(in srgb,var(--sc) 15%,transparent);border-color:var(--sc)}
+.stampbtn:hover{background:color-mix(in srgb,var(--sc) 10%,transparent)}
+.stampbtn.cur{background:color-mix(in srgb,var(--sc) 15%,transparent);border-color:var(--sc)}
 .tools{display:flex;gap:10px}
 .tool{
   display:inline-flex;align-items:center;gap:7px;cursor:pointer;
@@ -147,6 +147,23 @@ body::before{
 .tool:hover{border-color:var(--ink);color:var(--ink)}
 .tool-del:hover{border-color:var(--accent);color:var(--accent)}
 .tool-del.armed{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:var(--accent);color:var(--accent)}
+
+/* rubber stamp — injected on status change, removes itself */
+.stamp{
+  position:absolute;left:50%;top:50%;z-index:5;pointer-events:none;
+  font:600 13px var(--mono);letter-spacing:.28em;text-transform:uppercase;
+  color:var(--sc);border:2.5px solid var(--sc);outline:1.5px solid var(--sc);outline-offset:3px;
+  padding:9px 20px 9px 24px;border-radius:4px;white-space:nowrap;
+  mix-blend-mode:multiply;
+  animation:stampin 1.25s cubic-bezier(.2,.9,.3,1) forwards;
+}
+@keyframes stampin{
+  0%{opacity:0;transform:translate(-50%,-50%) rotate(-11deg) scale(2.1)}
+  14%{opacity:1;transform:translate(-50%,-50%) rotate(-11deg) scale(.94)}
+  24%{transform:translate(-50%,-50%) rotate(-11deg) scale(1.03)}
+  32%,74%{opacity:1;transform:translate(-50%,-50%) rotate(-11deg) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) rotate(-11deg) scale(1)}
+}
 
 /* ---------- modal ---------- */
 .overlay{
@@ -456,7 +473,7 @@ function rowHTML(app, idx){
       (app.notes ? '<blockquote class="notes">'+esc(app.notes)+'</blockquote>' : '')+
       '<div class="detail-actions">'+
         '<div class="markas"><span class="mlabel">Mark as</span>'+
-          STATUS_IDS.map(id=>'<button type="button" class="markbtn'+(id===app.status?' cur':'')+'" data-status="'+id+'" style="--sc:'+STATUSES[id].color+'">'+STATUSES[id].label+'</button>').join('')+
+          STATUS_IDS.map(id=>'<button type="button" class="stampbtn'+(id===app.status?' cur':'')+'" data-status="'+id+'" style="--sc:'+STATUSES[id].color+'">'+STATUSES[id].label+'</button>').join('')+
         '</div>'+
         '<div class="tools">'+
           '<button type="button" class="tool act-edit">'+icon('pencil')+'<span>Edit</span></button>'+
@@ -523,6 +540,19 @@ function changeStatus(id, status){
   app.updated = Date.now();
   save();
   render();
+  stampRow(id, status);
+}
+
+// stamp overlay on the row — removes itself when the animation ends
+function stampRow(id, status){
+  const row = document.querySelector('#list .row[data-id="'+id+'"]');
+  if(!row) return;
+  const el = document.createElement('div');
+  el.className = 'stamp';
+  el.textContent = STATUSES[status].label;
+  el.style.setProperty('--sc', STATUSES[status].color);
+  row.appendChild(el);
+  setTimeout(()=>el.remove(), 1300);
 }
 
 function handleDelete(btn, id){
