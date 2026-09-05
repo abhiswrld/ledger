@@ -44,9 +44,8 @@ body::before{
 .wordmark .dot{color:var(--accent)}
 .tagline{font:italic 400 16.5px/1.55 var(--serif);color:var(--ink-70);margin-top:14px;max-width:38ch}
 .auth-form{border-left:2px solid color-mix(in srgb,var(--accent) 55%,transparent);padding-left:26px}
-.auth-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px}
+.auth-top{margin-bottom:22px}
 .auth-top h2{font:500 23px var(--serif)}
-.auth-toggle{background:none;border:0;cursor:pointer;color:var(--accent);font:400 13px var(--sans)}
 .auth-field{display:block;margin-bottom:20px}
 .auth-field span{display:block;font:500 10px var(--mono);letter-spacing:.2em;color:var(--ink-55);margin-bottom:3px}
 .auth-field input{
@@ -55,6 +54,16 @@ body::before{
 }
 .auth-field input:focus{outline:none;border-bottom:2px solid var(--ink)}
 .auth-field input::placeholder{color:var(--ink-35);font-weight:400}
+.acc-chips{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-bottom:18px}
+.acc-chips span{font:500 10px var(--mono);letter-spacing:.2em;color:var(--ink-55);text-transform:uppercase}
+.acc-chips button{
+  font:500 11px var(--mono);letter-spacing:.06em;padding:7px 12px;
+  border:1px solid var(--line-2);border-radius:3px;color:var(--ink-70);
+  cursor:pointer;background:none;
+}
+.acc-chips button:hover{border-color:var(--ink);color:var(--ink)}
+.seed{display:flex;align-items:center;gap:9px;font:500 11px var(--mono);letter-spacing:.1em;color:var(--ink-70);margin-bottom:18px;cursor:pointer}
+.seed input{accent-color:var(--accent);width:14px;height:14px}
 .auth-err{min-height:22px;font:400 13px var(--sans);color:var(--accent);margin-bottom:6px}
 .btn-ink{
   display:inline-flex;align-items:center;justify-content:center;
@@ -79,11 +88,31 @@ body::before{
 .mh-out{background:none;border:0;cursor:pointer;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55)}
 .mh-out:hover{color:var(--accent)}
 
-.summary{padding:28px 0 6px}
-.sentence{font:italic 500 clamp(19px,2.7vw,25px)/1.45 var(--serif);max-width:66ch}
-.sentence b{font-weight:500}
-.s-interview{color:var(--c-interview)} .s-offer{color:var(--c-offer)}
-.s-applied{color:var(--c-applied)} .s-rejected{color:var(--c-rejected)}
+/* summary table */
+.summary{padding:28px 0 10px}
+.sum-head{margin-bottom:12px}
+.sum-cap{font:italic 500 19px/1.4 var(--serif);color:var(--ink-70)}
+.sumtable{width:100%;border-collapse:collapse}
+.sumtable th{
+  font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-55);text-align:left;padding:0 0 9px;
+  border-bottom:1px solid var(--line-2);
+}
+.sumtable th.num{text-align:right}
+.sumtable td{padding:11px 0;border-bottom:1px solid var(--line)}
+.sumtable tbody tr.dim{opacity:.45}
+.stagecell{display:inline-flex;align-items:center;gap:9px;font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-70)}
+.sumtable td.num{text-align:right;font:500 15px var(--mono);font-variant-numeric:tabular-nums}
+/* share column — left padding so the bar doesn't touch the count */
+.sumtable th.sharecol{padding-left:34px}
+.sumtable td.sharecol{padding-left:34px}
+.share{display:flex;align-items:center;gap:12px}
+.share .bar{flex:1;max-width:240px;height:7px;border-radius:2px;background:color-mix(in srgb,var(--ink) 8%,transparent);overflow:hidden}
+.share .bar i{display:block;height:100%;border-radius:2px}
+.share .pct{min-width:38px;text-align:right;font:400 11px var(--mono);color:var(--ink-55);font-variant-numeric:tabular-nums}
+.sumtable tr.total{border-top:4px double var(--ink)}
+.sumtable tr.total td{border-bottom:0;padding:13px 0 2px}
+.sumtable tr.total td.num{font-weight:600;font-size:16px}
 
 /* toolbar */
 .toolbar{display:flex;justify-content:flex-end;padding:16px 0 14px;border-top:1px solid var(--line)}
@@ -244,20 +273,18 @@ body::before{
       <p class="tagline">A quiet, well-kept book for every job application you send — interviews, offers, and the ones that got away.</p>
     </div>
     <form id="authForm" class="auth-form" novalidate autocomplete="off">
-      <div class="auth-top">
-        <h2 id="authTitle">Sign in</h2>
-        <button type="button" id="authToggle" class="auth-toggle">Create a ledger</button>
-      </div>
-      <label class="auth-field"><span>NAME</span>
-        <input id="authUser" maxlength="20" placeholder="e.g. sam" autocomplete="username">
+      <div class="auth-top"><h2>Open your ledger</h2></div>
+      <label class="auth-field"><span>YOUR NAME</span>
+        <input id="authUser" maxlength="24" placeholder="e.g. sam" autocomplete="off">
       </label>
-      <label class="auth-field"><span>PASSWORD</span>
-        <input id="authPass" type="password" placeholder="at least four characters" autocomplete="current-password">
+      <div id="accChips" class="acc-chips" hidden></div>
+      <label id="seedRow" class="seed" hidden>
+        <input type="checkbox" id="seedChk"> start with sample entries
       </label>
       <div id="authErr" class="auth-err"></div>
       <button type="submit" class="btn-ink" id="authSubmit">Open my ledger</button>
     </form>
-    <p class="auth-foot">Passwords are salted &amp; hashed before being stored locally. Nothing ever leaves this device — clearing the browser clears the book.</p>
+    <p class="auth-foot">Everything stays on this device. Clearing your browser data erases your ledger.</p>
   </div>
 </div>
 
@@ -276,7 +303,21 @@ body::before{
     </header>
 
     <section class="summary">
-      <p class="sentence" id="sentence"></p>
+      <div id="sumWrap" hidden>
+        <div class="sum-head">
+          <span class="sum-cap" id="sumCap"></span>
+        </div>
+        <table class="sumtable" id="sumTable">
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th class="num">Entries</th>
+              <th class="sharecol">Share</th>
+            </tr>
+          </thead>
+          <tbody id="sumBody"></tbody>
+        </table>
+      </div>
     </section>
 
     <div class="toolbar">
@@ -339,8 +380,9 @@ body::before{
 'use strict';
 
 // storage keys
-const USERS_KEY  = 'ledger.users.v1';
-const DATA_KEY   = 'ledger.data.v1.';   // + username
+const ACCOUNTS_KEY = 'ledger.accounts.v1';   // array of names
+const OLD_USERS_KEY = 'ledger.users.v1';     // pre-password-drop format
+const DATA_KEY   = 'ledger.data.v1.';        // + name
 const SESSION_KEY = 'ledger.session.v1';
 
 const STATUSES = {
@@ -359,7 +401,6 @@ const WORDS = ['zero','one','two','three','four','five','six','seven','eight','n
 let state = { user:null };
 let data  = { apps:[] };
 let view  = { openId:null };
-let authMode = 'signin';
 let editingId = null;
 
 const $ = id => document.getElementById(id);
@@ -370,27 +411,22 @@ const todayISO = () => { const d=new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const w = n => n <= 20 ? WORDS[n] : String(n);
 
-// sha-256(salt + password); FNV fallback for contexts without crypto.subtle
-async function hashPass(pw, salt){
-  const bytes = new TextEncoder().encode(salt+'::'+pw);
-  if(window.crypto && crypto.subtle){
-    const buf = await crypto.subtle.digest('SHA-256', bytes);
-    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
-  }
-  let h=2166136261; for(const b of bytes){ h^=b; h=Math.imul(h,16777619)>>>0; }
-  return 'f'+h.toString(16);
-}
-function makeSalt(){
-  if(window.crypto && crypto.getRandomValues){
-    return [...crypto.getRandomValues(new Uint8Array(8))].map(b=>b.toString(16).padStart(2,'0')).join('');
-  }
-  return Math.random().toString(16).slice(2,10);
-}
+// storage available? (some private modes block it entirely)
+let storageOK = true;
+try{ localStorage.setItem('ledger.test','1'); localStorage.removeItem('ledger.test'); }
+catch{ storageOK = false; }
 
-function usersGet(){
-  try{ return JSON.parse(localStorage.getItem(USERS_KEY)||'{}'); }catch{ return {}; }
+function accountsGet(){
+  try{ return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)||'[]'); }catch{ return []; }
 }
-function usersSet(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+function accountsSet(a){ localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a)); }
+
+// one-time: port old password accounts to plain names
+try{
+  if(!localStorage.getItem(ACCOUNTS_KEY) && localStorage.getItem(OLD_USERS_KEY)){
+    accountsSet(Object.keys(JSON.parse(localStorage.getItem(OLD_USERS_KEY))));
+  }
+}catch{}
 
 function loadData(user){
   try{
@@ -494,23 +530,41 @@ function renderSummary(){
   const total = data.apps.length;
 
   if(!total){
-    $('sentence').textContent = 'The ledger is blank.';
+    $('sumWrap').hidden = true;
     return;
   }
-  const parts = [];
-  if(c.interview) parts.push('<b class="s-interview">'+w(c.interview)+' in interview'+(c.interview>1?'s':'')+'</b>');
-  if(c.offer)     parts.push('<b class="s-offer">'+w(c.offer)+' offer'+(c.offer>1?'s':'')+' on the table</b>');
-  if(c.applied)   parts.push('<b class="s-applied">'+w(c.applied)+' awaiting a reply</b>');
-  if(c.rejected)  parts.push('<b class="s-rejected">'+w(c.rejected)+' closed</b>');
+  $('sumWrap').hidden = false;
 
   const min = data.apps.reduce((m,a)=> (a.appliedDate && a.appliedDate<m) ? a.appliedDate : m, '9999');
-  const since = min !== '9999' ? ' since '+fmtDate(min) : '';
-  const listed = parts.length > 1
-    ? parts.slice(0,-1).join(', ') + ', and ' + parts[parts.length-1]
-    : parts[0] || '';
-  $('sentence').innerHTML =
-    (total===1 ? 'One entry is' : w(total)+' entries are')+' in the book'+since+
-    (listed ? ' — '+listed+'.' : '.');
+  let cap = w(total)+' '+(total===1?'entry':'entries')+' on the books';
+  if(min !== '9999') cap += ' since '+fmtDate(min);
+  $('sumCap').textContent = cap+'.';
+
+  // largest remainder: floors + distribute leftover, so shares sum to 100
+  const parts = STATUS_IDS.map(id=>{
+    const raw = c[id]*100/total;
+    return { id, v:Math.floor(raw), r:raw%1 };
+  });
+  let left = 100 - parts.reduce((a,p)=>a+p.v, 0);
+  parts.sort((a,b)=> b.r - a.r);
+  for(let i=0; left>0; i++, left--) parts[i % parts.length].v++;
+  const pcts = Object.fromEntries(parts.map(p=>[p.id, p.v]));
+
+  const bar = (pct,color)=>'<span class="bar"><i style="width:'+pct+'%;background:'+color+'"></i></span>';
+  const rows = STATUS_IDS.map(id=>{
+    const n = c[id];
+    return '<tr'+(n===0?' class="dim"':'')+'>'+
+      '<td><span class="stagecell"><i class="dot" style="background:'+STATUSES[id].color+'"></i>'+STATUSES[id].label+'</span></td>'+
+      '<td class="num">'+n+'</td>'+
+      '<td class="sharecol"><span class="share">'+bar(pcts[id],STATUSES[id].color)+'<span class="pct">'+pcts[id]+'%</span></span></td>'+
+    '</tr>';
+  }).join('');
+  $('sumBody').innerHTML = rows +
+    '<tr class="total">'+
+      '<td><span class="stagecell"><i class="dot" style="background:var(--ink)"></i>Total</span></td>'+
+      '<td class="num">'+total+'</td>'+
+      '<td class="sharecol"><span class="share">'+bar(100,'var(--ink)')+'<span class="pct">100%</span></span></td>'+
+    '</tr>';
 }
 
 function render(){
@@ -666,48 +720,66 @@ document.addEventListener('keydown', e=>{
   if(e.key === 'Escape' && !overlay.hidden) closeModal();
 });
 
-// ---------- auth ----------
-function setAuthMode(mode){
-  authMode = mode;
-  const reg = mode === 'register';
-  $('authTitle').textContent  = reg ? 'Create your ledger' : 'Sign in';
-  $('authToggle').textContent = reg ? 'I have an account — sign in' : 'Create a ledger';
-  $('authSubmit').textContent = reg ? 'Start my ledger' : 'Open my ledger';
-  $('authPass').setAttribute('autocomplete', reg ? 'new-password' : 'current-password');
-  $('authErr').textContent = '';
-}
- $('authToggle').addEventListener('click', ()=>setAuthMode(authMode==='signin' ? 'register' : 'signin'));
+// ---------- auth (name only) ----------
+const normName = v => v.trim().toLowerCase().replace(/\s+/g,'-').slice(0,24);
 
- $('authForm').addEventListener('submit', async e=>{
+function renderAccountChips(){
+  const box = $('accChips');
+  const accs = accountsGet();
+  if(!accs.length){ box.hidden = true; box.innerHTML=''; return; }
+  box.hidden = false;
+  box.innerHTML = '<span>or open</span>' +
+    accs.map(a=>'<button type="button" data-name="'+esc(a)+'">'+esc(a)+'</button>').join('');
+}
+
+// button text + seed checkbox depend on whether the name exists
+function refreshAuth(){
+  const n = normName($('authUser').value);
+  const exists = !!n && accountsGet().includes(n);
+  $('authSubmit').textContent = n ? (exists ? 'Open ledger' : 'Create ledger') : 'Open my ledger';
+  $('seedRow').hidden = !n || exists;
+  renderAccountChips();
+}
+
+ $('authUser').addEventListener('input', refreshAuth);
+
+ $('accChips').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-name]');
+  if(!b) return;
+  signIn(b.dataset.name);
+});
+
+function signIn(name){
+  localStorage.setItem(SESSION_KEY, name);
+  state.user = name;
+  enterApp();
+  toast('Welcome back, '+name+'.');
+}
+
+ $('authForm').addEventListener('submit', e=>{
   e.preventDefault();
   const err = $('authErr');
-  const name = $('authUser').value.trim().toLowerCase();
-  const pass = $('authPass').value;
   err.textContent = '';
-  if(!name || !pass){ err.textContent = 'Both fields are needed.'; return; }
+  if(!storageOK){ err.textContent = 'This browser is blocking local storage — nothing can be saved.'; return; }
+  const name = normName($('authUser').value);
+  if(!name){ err.textContent = 'Enter a name first.'; return; }
 
-  const users = usersGet();
-  if(authMode === 'register'){
-    if(!/^[a-z0-9_.-]{3,20}$/.test(name)){ err.textContent = 'Name: 3–20 letters, numbers, . _ or -'; return; }
-    if(pass.length < 4){ err.textContent = 'Password must be at least 4 characters.'; return; }
-    if(users[name]){ err.textContent = 'That name already exists — sign in instead.'; return; }
-    const salt = makeSalt();
-    users[name] = { salt, hash: await hashPass(pass, salt) };
-    usersSet(users);
-    state.user = name;
-    data = { apps: seedApps() };
-    save();
-  }else{
-    const rec = users[name];
-    if(!rec){ err.textContent = 'No account under that name.'; return; }
-    if(await hashPass(pass, rec.salt) !== rec.hash){
-      err.textContent = 'Wrong password.';
-      return;
+  const accounts = accountsGet();
+  if(!accounts.includes(name)){
+    accounts.push(name);
+    accountsSet(accounts);
+    if($('seedChk').checked){
+      state.user = name;
+      data = { apps: seedApps() };
+      save();
     }
+    localStorage.setItem(SESSION_KEY, name);
     state.user = name;
+    enterApp();
+    toast('Ledger created. Welcome, '+name+'.');
+  }else{
+    signIn(name);
   }
-  localStorage.setItem(SESSION_KEY, name);
-  enterApp();
 });
 
  $('mhOut').addEventListener('click', ()=>{
@@ -715,15 +787,20 @@ function setAuthMode(mode){
   state.user = null;
   $('appView').hidden = true;
   $('authView').hidden = false;
-  $('authPass').value = '';
-  setAuthMode('signin');
+  $('authUser').value = '';
+  $('authErr').textContent = '';
+  refreshAuth();
 });
 
 // restore session on load
 (function init(){
+  if(!storageOK){
+    $('authErr').textContent = 'This browser is blocking local storage — nothing can be saved.';
+  }
+  refreshAuth();
   try{
     const s = localStorage.getItem(SESSION_KEY);
-    if(s && usersGet()[s]){
+    if(s && accountsGet().includes(s)){
       state.user = s;
       enterApp();
       return;
