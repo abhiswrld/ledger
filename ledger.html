@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ledger — job application tracker</title>
+<title>Ledger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Archivo:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -74,6 +74,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 }
 .btn-ink:hover{background:var(--accent)}
 .auth-form .btn-ink{width:100%}
+.auth-peek{display:block;margin-top:18px}
 .auth-foot{margin-top:22px;font:400 11px/1.7 var(--mono);color:var(--ink-55)}
 .linklike{
   background:none;border:0;cursor:pointer;padding:2px 0;
@@ -95,6 +96,19 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .mh-out{background:none;border:0;cursor:pointer;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55)}
 .mh-out:hover{color:var(--accent)}
 
+/* preview banner */
+.demo-bar{
+  display:flex;justify-content:space-between;align-items:center;gap:10px 18px;flex-wrap:wrap;
+  margin-top:18px;padding:10px 16px;
+  border:1px dashed color-mix(in srgb,var(--accent) 60%,transparent);
+  border-radius:4px;
+  background:color-mix(in srgb,var(--accent) 6%,transparent);
+}
+.demo-note{
+  display:inline-flex;align-items:center;gap:9px;
+  font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+}
+
 /* summary table */
 .summary{padding:28px 0 10px}
 .sum-head{margin-bottom:12px}
@@ -110,7 +124,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .sumtable tbody tr.dim{opacity:.45}
 .stagecell{display:inline-flex;align-items:center;gap:9px;font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-70)}
 .sumtable td.num{text-align:right;font:500 15px var(--mono);font-variant-numeric:tabular-nums}
-/* share column — left padding so the bar doesn't touch the count */
+/* share column: left padding so the bar doesn't touch the count */
 .sumtable th.sharecol{padding-left:34px}
 .sumtable td.sharecol{padding-left:34px}
 .share{display:flex;align-items:center;gap:12px}
@@ -149,7 +163,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .chips button.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent)}
 
 .ledger{border-top:2px solid var(--ink);position:relative}
-/* red margin rule — sits in the gutter between the number and the entry,
+/* red margin rule: sits in the gutter between the number and the entry,
    z-index keeps it above the row hover backgrounds */
 .ledger::before{
   content:"";position:absolute;top:0;bottom:0;left:var(--gut);width:1px;
@@ -164,7 +178,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .ch-applied{text-align:right}
 .ch-entry{padding-left:var(--pad)}
 
-/* rows use the same grid as the header — that's the whole fix */
+/* rows use the same grid as the header, that's the whole fix */
 .row{
   position:relative;
   display:grid;
@@ -187,7 +201,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .chev svg{transition:transform .25s}
 .row.open .chev svg{transform:rotate(180deg)}
 
-/* expanded detail — spans the full row, indented to sit under the entry text.
+/* expanded detail: spans the full row, indented to sit under the entry text.
    TODO: animate the toggle */
 .detail{display:none;grid-column:1/-1}
 .row.open .detail{display:block}
@@ -218,7 +232,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .tool-del:hover{border-color:var(--accent);color:var(--accent)}
 .tool-del.armed{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:var(--accent);color:var(--accent)}
 
-/* rubber stamp — injected on status change, removes itself */
+/* rubber stamp: injected on status change, removes itself */
 .stamp{
   position:absolute;left:50%;top:50%;z-index:5;pointer-events:none;
   font:600 13px var(--mono);letter-spacing:.28em;text-transform:uppercase;
@@ -240,8 +254,15 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .empty h3{font:italic 500 27px var(--serif)}
 .empty p{color:var(--ink-55);margin:12px auto 0;max-width:44ch}
 .empty q{font-style:italic}
-.empty .actions{margin-top:30px}
+.empty .actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-top:30px}
 .empty .linklike{display:inline-block;margin-top:22px}
+
+/* footer */
+.foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px 24px;padding:26px 0 44px;border-top:1px solid var(--line)}
+.foot span,.foot button{font:400 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-55)}
+.foot-actions{display:flex;align-items:center;gap:22px}
+.foot-actions button{display:inline-flex;align-items:center;gap:7px;cursor:pointer;background:none;border:0}
+.foot-actions button:hover{color:var(--ink)}
 
 /* ---------- modal ---------- */
 .overlay{
@@ -312,6 +333,9 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
     <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
     <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v11M8 10l4 4 4-4M5 20h14"/></symbol>
+    <symbol id="i-ul" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
   </defs>
 </svg>
 
@@ -320,7 +344,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   <div class="auth-inner">
     <div class="auth-brand">
       <h1 class="wordmark">Ledger<span class="dot">.</span></h1>
-      <p class="tagline">A quiet, well-kept book for every job application you send — interviews, offers, and the ones that got away.</p>
+      <p class="tagline">A sleek, well-kept book for every job application you send: interviews, offers, and the ones that got away.</p>
     </div>
     <form id="authForm" class="auth-form" novalidate autocomplete="off">
       <div class="auth-top"><h2>Open your ledger</h2></div>
@@ -334,6 +358,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       <div id="authErr" class="auth-err"></div>
       <button type="submit" class="btn-ink" id="authSubmit">Open my ledger</button>
     </form>
+    <button type="button" class="linklike auth-peek" id="authPreview">Peek inside a sample ledger</button>
     <p class="auth-foot">Everything stays on this device. Clearing your browser data erases your ledger.</p>
   </div>
 </div>
@@ -341,6 +366,10 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 <!-- the book -->
 <div id="appView" hidden>
   <div class="wrap">
+    <div class="demo-bar" id="demoBar" hidden>
+      <span class="demo-note"><svg class="ic"><use href="#i-eye"/></svg>Preview: nothing is saved</span>
+      <button type="button" class="linklike" id="demoExit">Exit preview</button>
+    </div>
     <header class="masthead">
       <div class="mh-left">
         <div class="wordmark-s">Ledger<span class="dot">.</span></div>
@@ -397,6 +426,14 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       <div id="list"></div>
       <div id="emptyBox"></div>
     </section>
+
+    <footer class="foot">
+      <span id="footCount"></span>
+      <div class="foot-actions">
+        <button type="button" id="importLink"><svg class="ic"><use href="#i-ul"/></svg>Import a copy</button>
+        <button type="button" id="exportLink"><svg class="ic"><use href="#i-dl"/></svg>Export a copy</button>
+      </div>
+    </footer>
   </div>
 </div>
 
@@ -441,6 +478,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   </form>
 </div>
 
+<input type="file" id="importFile" accept="application/json,.json" hidden>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -465,9 +503,9 @@ const MONF = ['January','February','March','April','May','June','July','August',
 const WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
                'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
 
-let state = { user:null };
+let state = { user:null, demo:false };
 let data  = { apps:[] };
-// view state: filter, sort, search — TODO: remember these between visits
+// view state: filter, sort, search (TODO: remember these between visits)
 let view  = { openId:null, filter:'all', sort:'recent', query:'' };
 let editingId = null;
 
@@ -514,7 +552,8 @@ function loadData(user){
   return { apps:[] };
 }
 function save(){
-  if(!state.user) return;
+  // preview mode never writes to storage
+  if(state.demo || !state.user) return;
   localStorage.setItem(DATA_KEY+state.user, JSON.stringify(data));
 }
 
@@ -523,12 +562,12 @@ function seedApps(){
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
   const t = Date.now();
   const rows = [
-    ['Senior Product Designer','Linear','interview',-16,'Referral','Remote — EU','Portfolio review with the design team',4,'Anna said the team loved the writing sample — lead with the design-systems case study.'],
+    ['Senior Product Designer','Linear','interview',-16,'Referral','Remote — EU','Portfolio review with the design team',4,'Anna said the team loved the writing sample: lead with the design-systems case study.'],
     ['Design Lead, Payments','Stripe','applied',-9,'Company site','Berlin (hybrid)','$155k',null,''],
-    ['Staff Product Designer','Figma','offer',-28,'Recruiter','San Francisco','$185k','Respond to the offer — decision deadline',6,'Verbal offer Tuesday: base 185, equity TBD.'],
+    ['Staff Product Designer','Figma','offer',-28,'Recruiter','San Francisco','$185k','Respond to the offer: decision deadline',6,'Verbal offer Tuesday: base 185, equity TBD.'],
     ['Product Designer','Notion','rejected',-34,'LinkedIn','Remote — global','',null,'','Standard rejection after two weeks.'],
     ['Product Designer, Core App','Amplitude','applied',-3,'LinkedIn','Remote — US','$140k',null,''],
-    ['Principal Designer','Duolingo','interview',-12,'Design community','Pittsburgh / Remote','$170k','Second round — live critique whiteboard',9,'The whiteboard is a live critique exercise.'],
+    ['Principal Designer','Duolingo','interview',-12,'Design community','Pittsburgh / Remote','$170k','Second round: live critique whiteboard',9,'The whiteboard is a live critique exercise.'],
     ['Brand Designer','Mailchimp','applied',-6,'Company site','Atlanta (hybrid)','$110k','Follow up if no reply by Friday',5,''],
   ];
   return rows.map((r,i)=>({
@@ -631,7 +670,11 @@ function renderList(){
     ledger.classList.add('is-empty');
     emptyBox.innerHTML =
       '<div class="empty"><h3>Nothing in the ledger yet.</h3>'+
-      '<div class="actions"><button type="button" class="btn-ink" data-action="add">Make the first entry</button></div></div>';
+      '<div class="actions">'+
+        '<button type="button" class="btn-ink" data-action="add">Make the first entry</button>'+
+        '<button type="button" class="btn-ghost" data-action="import">Import a backup</button>'+
+        '<button type="button" class="btn-ghost" data-action="preview">Look through sample entries</button>'+
+      '</div></div>';
     return;
   }
   if(!apps.length){
@@ -705,13 +748,30 @@ function renderSummary(){
     '</tr>';
 }
 
+function renderFooter(){
+  if(state.demo){
+    $('footCount').textContent = 'Preview: not saved';
+    $('importLink').hidden = true;
+    $('exportLink').hidden = true;
+    return;
+  }
+  const n = data.apps.length;
+  $('footCount').textContent = n+' '+(n===1?'entry':'entries');
+  $('importLink').hidden = false;
+  $('exportLink').hidden = false;
+}
+
 function render(){
   renderSummary();
   renderChips();
   renderList();
+  renderFooter();
 }
 
 function enterApp(){
+  state.demo = false;
+  $('demoBar').hidden = true;
+  $('mhOut').textContent = 'Sign out';
   data = loadData(state.user);
   view = { openId:null, filter:'all', sort:'recent', query:'' };
   $('searchInp').value = '';
@@ -721,6 +781,37 @@ function enterApp(){
   $('appView').hidden = false;
   render();
 }
+
+// ---------- preview mode ----------
+// sample ledger in memory only, saves are blocked while it's on
+function enterDemo(){
+  state.demo = true;
+  data = { apps: seedApps() };
+  view = { openId:null, filter:'all', sort:'recent', query:'' };
+  $('searchInp').value = '';
+  $('sortSel').value = 'recent';
+  $('authView').hidden = true;
+  $('appView').hidden = false;
+  $('demoBar').hidden = false;
+  $('mhUser').textContent = 'Preview';
+  $('mhOut').textContent = 'Exit preview';
+  render();
+}
+
+function exitDemo(){
+  state.demo = false;
+  $('demoBar').hidden = true;
+  if(state.user){
+    enterApp();
+  }else{
+    $('appView').hidden = true;
+    $('authView').hidden = false;
+    refreshAuth();
+  }
+}
+
+ $('demoExit').addEventListener('click', exitDemo);
+ $('authPreview').addEventListener('click', enterDemo);
 
 // ---------- row interactions ----------
 function toggleRow(id){
@@ -738,7 +829,7 @@ function changeStatus(id, status){
   stampRow(id, status);
 }
 
-// stamp overlay on the row — removes itself when the animation ends
+// stamp overlay on the row, removes itself when the animation ends
 function stampRow(id, status){
   const row = document.querySelector('#list .row[data-id="'+id+'"]');
   if(!row) return;
@@ -797,12 +888,93 @@ function handleDelete(btn, id){
   const b = e.target.closest('[data-action]');
   if(!b) return;
   if(b.dataset.action === 'add') openModal(null);
+  else if(b.dataset.action === 'import') $('importFile').click();
+  else if(b.dataset.action === 'preview') enterDemo();
   else if(b.dataset.action === 'clear'){
     view.query = ''; $('searchInp').value = '';
     view.filter = 'all';
     render();
   }
 });
+
+// ---------- export / import ----------
+ $('exportLink').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ledger-'+state.user+'.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  toast('Ledger exported');
+});
+
+ $('importLink').addEventListener('click', ()=> $('importFile').click());
+
+ $('importFile').addEventListener('change', e=>{
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';   // lets the same file be picked again
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=> doImport(String(reader.result));
+  reader.onerror = ()=> toast("Couldn't read that file.");
+  reader.readAsText(file);
+});
+
+// validate + clean an imported file; null if it isn't a ledger export
+function normalizeImport(obj){
+  if(!obj || typeof obj !== 'object' || !Array.isArray(obj.apps)) return null;
+  const dateOK = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
+  const out = [];
+  for(const a of obj.apps){
+    if(!a || typeof a !== 'object') continue;
+    const role = String(a.role||'').trim();
+    const company = String(a.company||'').trim();
+    if(!role || !company) continue;
+    out.push({
+      id: (typeof a.id === 'string' && a.id) ? a.id : uid(),
+      role, company,
+      status: STATUSES[a.status] ? a.status : 'applied',
+      appliedDate: dateOK(a.appliedDate) ? a.appliedDate : '',
+      source: String(a.source||'').trim(),
+      salary: String(a.salary||'').trim(),
+      location: String(a.location||'').trim(),
+      nextStep: String(a.nextStep||'').trim(),
+      nextDate: dateOK(a.nextDate) ? a.nextDate : '',
+      notes: String(a.notes||''),
+      created: typeof a.created === 'number' ? a.created : Date.now(),
+      updated: typeof a.updated === 'number' ? a.updated : Date.now()
+    });
+  }
+  return out.length ? out : null;
+}
+
+function doImport(text){
+  let obj;
+  try{ obj = JSON.parse(text); }
+  catch{ toast("That's not a Ledger export."); return; }
+  const apps = normalizeImport(obj);
+  if(!apps){ toast("That's not a Ledger export."); return; }
+
+  // merge by id: re-importing your own export is a no-op
+  let added = 0, updated = 0;
+  const index = new Map(data.apps.map(a=>[a.id, a]));
+  for(const app of apps){
+    if(index.has(app.id)){
+      data.apps[data.apps.findIndex(a=>a.id===app.id)] = app;
+      updated++;
+    }else{
+      data.apps.push(app);
+      index.set(app.id, app);
+      added++;
+    }
+  }
+  // don't hide what was just imported behind a narrow filter
+  if(view.filter !== 'all' && apps.some(a=>a.status !== view.filter)) view.filter = 'all';
+
+  save();
+  render();
+  toast('Imported '+added+' '+(added===1?'entry':'entries')+(updated ? ', updated '+updated : '')+'.');
+}
 
 // ---------- modal (new + edit) ----------
 const overlay = $('overlay'), entryForm = $('entryForm');
@@ -934,7 +1106,7 @@ function signIn(name){
   e.preventDefault();
   const err = $('authErr');
   err.textContent = '';
-  if(!storageOK){ err.textContent = 'This browser is blocking local storage — nothing can be saved.'; return; }
+  if(!storageOK){ err.textContent = 'This browser is blocking local storage, nothing can be saved.'; return; }
   const name = normName($('authUser').value);
   if(!name){ err.textContent = 'Enter a name first.'; return; }
 
@@ -957,6 +1129,7 @@ function signIn(name){
 });
 
  $('mhOut').addEventListener('click', ()=>{
+  if(state.demo){ exitDemo(); return; }
   localStorage.removeItem(SESSION_KEY);
   state.user = null;
   $('appView').hidden = true;
@@ -969,7 +1142,7 @@ function signIn(name){
 // restore session on load
 (function init(){
   if(!storageOK){
-    $('authErr').textContent = 'This browser is blocking local storage — nothing can be saved.';
+    $('authErr').textContent = 'This browser is blocking local storage, nothing can be saved.';
   }
   refreshAuth();
   try{
