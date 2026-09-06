@@ -264,6 +264,14 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .boards-cap{font:italic 500 19px/1.4 var(--serif);color:var(--ink-70)}
 .boards-cap b{font-weight:600;color:var(--ink)}
 .boards-refresh{white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+/* one editorial line under the caption, above the listings */
+.sug-note{
+  font:italic 400 15px/1.6 var(--serif);
+  color:var(--ink-70);
+  max-width:70ch;
+  padding:6px 0 14px;
+}
+.sug-note b{font-weight:500;color:var(--ink)}
 .boards-tools{display:flex;align-items:center;gap:22px;padding:14px 0 12px;border-top:1px solid var(--line);flex-wrap:wrap}
 .boards-filters{display:flex;flex-wrap:wrap;gap:8px 26px;padding:2px 0 16px}
 .boards-filters button{
@@ -550,6 +558,8 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
         <span class="boards-cap" id="boardsCap">The boards are quiet.</span>
         <button type="button" class="linklike boards-refresh" id="boardsRefreshBtn"><svg class="ic"><use href="#i-new"/></svg><span>Refresh</span></button>
       </div>
+      <!-- the why-these-jobs line lives here, above the tools -->
+      <p class="sug-note" id="sugNote" hidden></p>
 
       <div class="boards-tools">
         <div class="search">
@@ -935,6 +945,15 @@ function suggestScore(listing, profile){
   return score - (listing.ageDays ?? 9999) * 0.001;
 }
 
+// your strongest positive terms, for the summary line
+function topTerms(profile, n){
+  return [...profile.entries()]
+    .filter(([t,v])=> v > 0)
+    .sort((a,b)=> b[1]-a[1])
+    .slice(0, n)
+    .map(([t])=> t);
+}
+
 // ---------- toast ----------
 let toastT;
 function toast(msg){
@@ -1144,17 +1163,9 @@ function renderBoards(){
 
   const total = boards.listings.length;
   const pulled = boards.fetched ? ', pulled '+fmtDate(new Date(boards.fetched).toISOString().slice(0,10)) : '';
-  let list = [...boards.listings];
-  if(boardsView.section !== 'all') list = list.filter(l=>l.section === boardsView.section);
-  const q = boardsView.query.trim().toLowerCase();
-  if(q) list = list.filter(l=>[l.role,l.company,l.location,l.section].some(v=>v && v.toLowerCase().includes(q)));
-  const profile = data.apps.length >= 3 ? buildProfile() : null;
-  const sugCount = profile ? list.filter(l=> suggestScore(l, profile) > 0).length : 0;
   if(!total){
     $('boardsCap').innerHTML = 'The boards are quiet.';
-    if(boardsView.sort === 'suggested' && profile){
-      $('boardsCap').innerHTML += ' <span style="color:var(--accent)">'+w(Math.min(sugCount, list.length))+' match your history.</span>';
-    }
+    $('sugNote').hidden = true;
     $('boardsList').innerHTML = '';
     $('boardsEmpty').hidden = false;
     $('boardsEmpty').innerHTML =
@@ -1166,7 +1177,15 @@ function renderBoards(){
   }
 
   $('boardsEmpty').hidden = true;
+  let list = [...boards.listings];
+  if(boardsView.section !== 'all') list = list.filter(l=>l.section === boardsView.section);
+  const q = boardsView.query.trim().toLowerCase();
+  if(q) list = list.filter(l=>[l.role,l.company,l.location,l.section].some(v=>v && v.toLowerCase().includes(q)));
+
+  const profile = data.apps.length >= 3 ? buildProfile() : null;
   if(boardsView.sort === 'suggested' && profile){
+    // suggested is a filter, not just a ranking: keep only real matches
+    list = list.filter(l=> suggestScore(l, profile) > 0);
     list.forEach(l=> l._score = suggestScore(l, profile));
     list.sort((a,b)=> (b._score-a._score) || a.company.localeCompare(b.company));
   }
@@ -1180,18 +1199,26 @@ function renderBoards(){
     (list.length < total ? ', '+w(list.length)+' here' : '')+
     ', showing '+w(shown)+'.';
 
-  if(boardsView.sort === 'suggested' && profile){
-    const sugCount = list.filter(l=> suggestScore(l, profile) > 0).length;
-    $('boardsCap').innerHTML += ' <span style="color:var(--accent)">'+w(sugCount)+' match your history.</span>';
-    $('boardsList').innerHTML = list.slice(0, boardsView.shown).map(browHTML).join('');
-    $('boardsMoreBtn').hidden = list.length <= boardsView.shown;
-    syncJump();
+  // the editorial line: why these jobs, in plain words
+  const note = $('sugNote');
+  if(boardsView.sort === 'suggested' && profile && list.length){
+    const terms = topTerms(profile, 3);
+    const total = data.apps.length;
+    const strong = data.apps.filter(a=> a.status==='interview'||a.status==='offer').length;
+    note.hidden = false;
+    note.innerHTML =
+      'These '+w(list.length)+' listings borrow language from the ledger: '+
+      (terms.length ? 'the words <b>'+terms.map(esc).join('</b>, <b>')+'</b> appear in roles you have applied to'+
+      (strong ? ', and the ones that went furthest count heaviest' : '')+'.' :
+      'terms drawn from the entries you are already tracking.')+
+      ' Log more applications and the list sharpens.';
+  }else{
+    note.hidden = true;
   }
-  else {
-    $('boardsList').innerHTML = list.slice(0, boardsView.shown).map(browHTML).join('');
-    $('boardsMoreBtn').hidden = list.length <= boardsView.shown;
-    syncJump();
-  }
+
+  $('boardsList').innerHTML = list.slice(0, boardsView.shown).map(browHTML).join('');
+  $('boardsMoreBtn').hidden = list.length <= boardsView.shown;
+  syncJump();
 }
 
 function browHTML(l){
@@ -1281,6 +1308,7 @@ function syncJump(){
   const onBoards = !$('boardsTab').hidden && !$('appView').hidden;
   if(!onBoards){
     jumpBtn.classList.remove('show');
+    jumpBtn.hidden = true;
     return;
   }
   const rows = $('boardsList').children;
@@ -1288,12 +1316,11 @@ function syncJump(){
   jumpBtn.classList.toggle('up', nearBottom);
   $('jumpLabel').textContent = nearBottom ? 'Top' : 'Bottom';
   if(rows.length > 12){
-    jumpBtn.removeAttribute('hidden');
+    jumpBtn.hidden = false;
     jumpBtn.classList.add('show');
-  }
-  else{
+  }else{
     jumpBtn.classList.remove('show');
-    jumpBtn.setAttribute('hidden', 'true');
+    jumpBtn.hidden = true;
   }
 }
 window.addEventListener('scroll', syncJump, {passive:true});
@@ -1302,7 +1329,7 @@ jumpBtn.addEventListener('click', ()=>{
     window.scrollTo({top:0, behavior:'smooth'});
     return;
   }
-  // last rendered listing, or the "show more" button if it's there
+  // land on the "show more" button so the next batch is right there
   const rows = $('boardsList').children;
   const target = !$('boardsMoreBtn').hidden ? $('boardsMoreBtn') : (rows.length ? rows[rows.length-1] : null);
   if(target) target.scrollIntoView({behavior:'smooth', block:'end'});
@@ -1390,13 +1417,14 @@ function handleDelete(btn, id){
 });
 
  $('boardsSearch').addEventListener('input', e=>{
-  boardsView.query = e.value || e.target.value;
+  boardsView.query = e.target.value;
   boardsView.shown = 50;
   renderBoards();
 });
 
  $('boardsSort').addEventListener('change', e=>{
   boardsView.sort = e.target.value;
+  boardsView.shown = 50;
   renderBoards();
 });
 
