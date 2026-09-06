@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ledger</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Archivo:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -74,8 +75,12 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 }
 .btn-ink:hover{background:var(--accent)}
 .auth-form .btn-ink{width:100%}
-.auth-peek{display:block;margin-top:18px}
-.auth-foot{margin-top:22px;font:400 11px/1.7 var(--mono);color:var(--ink-55)}
+/* peek sits under the submit, same box: border eats 2px of the padding
+   so both buttons end up the same height */
+.auth-peek{
+  display:block;width:100%;margin-top:12px;
+  padding:13px 16px;justify-content:center;
+}
 .linklike{
   background:none;border:0;cursor:pointer;padding:2px 0;
   font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;
@@ -201,10 +206,10 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .chev svg{transition:transform .25s}
 .row.open .chev svg{transform:rotate(180deg)}
 
-/* expanded detail: spans the full row, indented to line up with the entry text.
-   TODO: animate the toggle */
-.detail{display:none;grid-column:1/-1}
-.row.open .detail{display:block}
+/* expanded detail: animated slide via grid-template-rows */
+.detail{grid-column:1/-1;display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+.row.open .detail{grid-template-rows:1fr}
+.detail-in{overflow:hidden;min-height:0}
 .detail-body{padding:2px 0 14px calc(var(--gut) + var(--pad))}
 .facts{display:flex;flex-wrap:wrap;gap:14px 44px}
 .facts dt{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55);margin-bottom:3px}
@@ -322,6 +327,27 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   transition:transform .3s,opacity .3s;
 }
 .toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- responsive: phones ---------- */
+@media (max-width:700px){
+  .colhead{display:none}
+  .ledger::before{display:none}
+  .row{display:block;padding:16px 0}
+  .no{position:absolute;right:0;top:18px;padding:0}
+  .entry{padding:0 40px 0 0}
+  .row .status{display:inline-flex;margin-top:10px}
+  .row .date{display:inline-block;margin:10px 0 0 20px;text-align:left}
+  .detail{display:block}
+  .detail-body{padding:2px 0 20px 0}
+  .frow2{grid-template-columns:1fr}
+  .masthead{padding-top:20px}
+  .card{padding:22px 20px 20px}
+  .empty .actions{flex-direction:column;gap:14px}
+}
+/* respect reduced-motion prefs */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
@@ -346,20 +372,21 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       <h1 class="wordmark">Ledger<span class="dot">.</span></h1>
       <p class="tagline">A sleek, well-kept book for every job application you send: interviews, offers, and the ones that got away.</p>
     </div>
-    <form id="authForm" class="auth-form" novalidate autocomplete="off">
-      <div class="auth-top"><h2>Open your ledger</h2></div>
-      <label class="auth-field"><span>YOUR NAME</span>
-        <input id="authUser" maxlength="24" placeholder="e.g. sam" autocomplete="off">
-      </label>
-      <div id="accChips" class="acc-chips" hidden></div>
-      <label id="seedRow" class="seed" hidden>
-        <input type="checkbox" id="seedChk"> start with sample entries
-      </label>
-      <div id="authErr" class="auth-err"></div>
-      <button type="submit" class="btn-ink" id="authSubmit">Open my ledger</button>
-    </form>
-    <button type="button" class="linklike auth-peek" id="authPreview">Peek inside a sample ledger</button>
-    <p class="auth-foot">Everything stays on this device. Clearing your browser data erases your ledger.</p>
+    <div class="auth-form">
+      <form id="authForm" novalidate autocomplete="off">
+        <div class="auth-top"><h2>Open your ledger</h2></div>
+        <label class="auth-field"><span>YOUR NAME</span>
+          <input id="authUser" maxlength="24" autocomplete="off">
+        </label>
+        <div id="accChips" class="acc-chips" hidden></div>
+        <label id="seedRow" class="seed" hidden>
+          <input type="checkbox" id="seedChk"> start with sample entries
+        </label>
+        <div id="authErr" class="auth-err"></div>
+        <button type="submit" class="btn-ink" id="authSubmit">Open my ledger</button>
+      </form>
+      <button type="button" class="btn-ghost auth-peek" id="authPreview">Peek inside a sample ledger</button>
+    </div>
   </div>
 </div>
 
@@ -532,10 +559,17 @@ let storageOK = true;
 try{ localStorage.setItem('ledger.test','1'); localStorage.removeItem('ledger.test'); }
 catch{ storageOK = false; }
 
+// every write goes through this: quota or blocked writes return
+// false instead of throwing mid-click
+function safeSet(key, val){
+  try{ localStorage.setItem(key, val); return true; }
+  catch{ return false; }
+}
+
 function accountsGet(){
   try{ return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)||'[]'); }catch{ return []; }
 }
-function accountsSet(a){ localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a)); }
+function accountsSet(a){ return safeSet(ACCOUNTS_KEY, JSON.stringify(a)); }
 
 // one-time: port old password accounts to plain names
 try{
@@ -551,15 +585,25 @@ function loadData(user){
   }catch{}
   return { apps:[] };
 }
+
+let saveFailed = false;
 function save(){
   // preview mode never writes to storage
-  if(state.demo || !state.user) return;
-  localStorage.setItem(DATA_KEY+state.user, JSON.stringify(data));
+  if(state.demo || !state.user) return true;
+  const ok = safeSet(DATA_KEY+state.user, JSON.stringify(data));
+  if(ok){
+    saveFailed = false;
+  }else if(!saveFailed){
+    // toast once per failure streak, not on every keystroke-level save
+    saveFailed = true;
+    toast("Couldn't save. Export a copy to keep your changes.");
+  }
+  return ok;
 }
 // stash filter + sort with the data so they survive a refresh
 function savePrefs(){
   data.prefs = { filter:view.filter, sort:view.sort };
-  save();
+  return save();
 }
 
 function seedApps(){
@@ -594,13 +638,19 @@ function toast(msg){
 }
 
 // ---------- rendering ----------
+// ordinal suffix for the day
+function ord(n){
+  if(n%100 >= 11 && n%100 <= 13) return 'th';
+  const s = ['th','st','nd','rd','th','th','th','th','th','th'];
+  return s[n%10];
+}
 function fmtDate(iso){
   const d = new Date(iso+'T00:00:00');
-  return d.getDate()+' '+MON[d.getMonth()];
+  return MON[d.getMonth()]+' '+d.getDate()+ord(d.getDate());
 }
 function fmtFull(iso){
   const d = new Date(iso+'T00:00:00');
-  return d.getDate()+' '+MONF[d.getMonth()]+' '+d.getFullYear();
+  return MONF[d.getMonth()]+' '+d.getDate()+ord(d.getDate())+', '+d.getFullYear();
 }
 
 function sortFn(mode){
@@ -644,7 +694,7 @@ function rowHTML(app, idx){
     '<div class="status" style="color:'+st.color+'"><i class="dot" style="background:'+st.color+'"></i>'+st.label+'</div>'+
     '<div class="date">'+(app.appliedDate ? mark(fmtDate(app.appliedDate),q) : '—')+'</div>'+
     '<div class="chev">'+icon('chev')+'</div>'+
-    '<div class="detail"><div class="detail-body">'+
+    '<div class="detail"><div class="detail-in"><div class="detail-body">'+
       (facts.length ? '<dl class="facts">'+facts.map(f=>'<div><dt>'+f[0]+'</dt><dd>'+mark(f[1],q)+'</dd></div>').join('')+'</dl>' : '')+
       (app.notes ? '<blockquote class="notes">'+mark(app.notes,q)+'</blockquote>' : '')+
       '<div class="detail-actions">'+
@@ -656,7 +706,7 @@ function rowHTML(app, idx){
           '<button type="button" class="tool tool-del act-del">'+icon('trash')+'<span>Delete</span></button>'+
         '</div>'+
       '</div>'+
-    '</div></div>'+
+    '</div></div></div>'+
   '</article>';
 }
 
@@ -722,7 +772,7 @@ function renderSummary(){
   $('sumWrap').hidden = false;
 
   const min = data.apps.reduce((m,a)=> (a.appliedDate && a.appliedDate<m) ? a.appliedDate : m, '9999');
-  let cap = w(total)+' '+(total===1?'entry':'entries')+' on the books';
+  let cap = w(total)+' '+(total===1?'entry':'entries')+' in the books';
   if(min !== '9999') cap += ' since '+fmtDate(min);
   $('sumCap').textContent = cap+'.';
 
@@ -813,9 +863,7 @@ function exitDemo(){
   if(state.user){
     enterApp();
   }else{
-    $('appView').hidden = true;
-    $('authView').hidden = false;
-    refreshAuth();
+    showAuth();
   }
 }
 
@@ -854,8 +902,7 @@ function handleDelete(btn, id){
   if(btn.classList.contains('armed')){
     data.apps = data.apps.filter(a=>a.id!==id);
     if(view.openId === id) view.openId = null;
-    save();
-    render();
+    if(save()) render();
     toast('Entry removed');
   }else{
     // second click confirms
@@ -982,9 +1029,9 @@ function doImport(text){
   // don't hide what was just imported behind a narrow filter
   if(view.filter !== 'all' && apps.some(a=>a.status !== view.filter)) view.filter = 'all';
 
-  save();
+  const ok = save();
   render();
-  toast('Imported '+added+' '+(added===1?'entry':'entries')+(updated ? ', updated '+updated : '')+'.');
+  if(ok) toast('Imported '+added+' '+(added===1?'entry':'entries')+(updated ? ', updated '+updated : '')+'.');
 }
 
 // ---------- modal (new + edit) ----------
@@ -1050,21 +1097,31 @@ entryForm.addEventListener('submit', e=>{
     updated:  Date.now()
   };
   if(editingId){
-    Object.assign(data.apps.find(x=>x.id===editingId), fields);
+    // the entry can vanish if another tab deletes it while this form is open
+    const target = data.apps.find(x=>x.id===editingId);
+    if(!target){
+      closeModal();
+      toast('That entry was removed elsewhere.');
+      return;
+    }
+    Object.assign(target, fields);
     view.openId = editingId;
-    save(); render(); closeModal();
-    toast('Entry updated');
+    const ok = save();
+    render(); closeModal();
+    if(ok) toast('Entry updated');
   }else{
     const app = Object.assign({ id:uid(), created:Date.now() }, fields);
     data.apps.unshift(app);
     view.openId = app.id;
-    save(); render(); closeModal();
-    toast('Entry added');
+    const ok = save();
+    render(); closeModal();
+    if(ok) toast('Entry added');
   }
 });
 
 document.addEventListener('keydown', e=>{
   if(e.key === 'Escape' && !overlay.hidden){ closeModal(); return; }
+  if(e.key === 'Escape' && view.openId){ view.openId = null; renderList(); return; }
   // "/" jumps to search
   if(e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey
      && !$('appView').hidden && overlay.hidden){
@@ -1098,6 +1155,17 @@ function refreshAuth(){
   renderAccountChips();
 }
 
+function showAuth(){
+  state.user = null;
+  state.demo = false;
+  $('demoBar').hidden = true;
+  $('appView').hidden = true;
+  $('authView').hidden = false;
+  $('authUser').value = '';
+  $('authErr').textContent = '';
+  refreshAuth();
+}
+
  $('authUser').addEventListener('input', refreshAuth);
 
  $('accChips').addEventListener('click', e=>{
@@ -1107,7 +1175,7 @@ function refreshAuth(){
 });
 
 function signIn(name){
-  localStorage.setItem(SESSION_KEY, name);
+  safeSet(SESSION_KEY, name);   // non-critical: worst case the login isn't remembered
   state.user = name;
   enterApp();
   toast('Welcome back, '+name+'.');
@@ -1123,14 +1191,19 @@ function signIn(name){
 
   const accounts = accountsGet();
   if(!accounts.includes(name)){
-    accounts.push(name);
-    accountsSet(accounts);
-    if($('seedChk').checked){
-      state.user = name;
-      data = { apps: seedApps() };
-      save();
+    // write the data first, then the account list: a failed write
+    // can't leave a half-created ledger behind
+    const seed = $('seedChk').checked ? seedApps() : [];
+    if(!safeSet(DATA_KEY+name, JSON.stringify({ apps:seed, prefs:{} }))){
+      err.textContent = "Couldn't write to storage, it may be full or blocked.";
+      return;
     }
-    localStorage.setItem(SESSION_KEY, name);
+    accounts.push(name);
+    if(!accountsSet(accounts)){
+      err.textContent = "Couldn't write to storage, it may be full or blocked.";
+      return;
+    }
+    safeSet(SESSION_KEY, name);
     state.user = name;
     enterApp();
     toast('Ledger created. Welcome, '+name+'.');
@@ -1141,13 +1214,36 @@ function signIn(name){
 
  $('mhOut').addEventListener('click', ()=>{
   if(state.demo){ exitDemo(); return; }
-  localStorage.removeItem(SESSION_KEY);
-  state.user = null;
-  $('appView').hidden = true;
-  $('authView').hidden = false;
-  $('authUser').value = '';
-  $('authErr').textContent = '';
-  refreshAuth();
+  try{ localStorage.removeItem(SESSION_KEY); }catch{}
+  showAuth();
+});
+
+// ---------- cross-tab sync ----------
+// storage events fire in every OTHER tab that shares this origin.
+// every edit saves immediately, so reloading on the event keeps
+// tabs from silently clobbering each other
+window.addEventListener('storage', e=>{
+  // all site data cleared somewhere
+  if(e.key === null && !$('appView').hidden){ showAuth(); return; }
+  // this ledger changed in another tab: reload it, keep local view state
+  if(state.user && !state.demo && e.key === DATA_KEY+state.user){
+    data = loadData(state.user);
+    // the entry this form was editing is gone: close before submit can hit it
+    if(editingId && !data.apps.some(a=>a.id===editingId)){
+      closeModal();
+      toast('That entry was removed elsewhere.');
+    }
+    if(view.openId && !data.apps.some(a=>a.id===view.openId)) view.openId = null;
+    render();
+    return;
+  }
+  // another tab switched ledgers or signed out: follow it
+  if(e.key === SESSION_KEY && e.newValue !== state.user && !$('appView').hidden){
+    showAuth();
+    return;
+  }
+  // account list changed while on the cover: refresh the quick-switch chips
+  if(e.key === ACCOUNTS_KEY && !$('authView').hidden) refreshAuth();
 });
 
 // restore session on load
