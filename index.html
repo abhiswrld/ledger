@@ -273,16 +273,29 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 }
 .sug-note b{font-weight:500;color:var(--ink)}
 .boards-tools{display:flex;align-items:center;gap:22px;padding:14px 0 12px;border-top:1px solid var(--line);flex-wrap:wrap}
-.boards-filters{display:flex;flex-wrap:wrap;gap:8px 26px;padding:2px 0 16px}
-.boards-filters button{
-  position:relative;background:none;border:0;cursor:pointer;
-  font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink-55);display:inline-flex;align-items:center;gap:7px;padding:4px 0;
+/* category pills in a 3x2 grid */
+.boards-filters{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:2px 0 18px;
 }
-.boards-filters button .n{color:var(--ink-35);letter-spacing:0}
-.boards-filters button:hover{color:var(--ink)}
-.boards-filters button.on{color:var(--ink)}
-.boards-filters button.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent)}
+.boards-filters button{
+  background:none;cursor:pointer;text-align:left;
+  font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-70);
+  border:1px solid var(--line-2);border-radius:4px;
+  padding:11px 14px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.boards-filters button:hover{border-color:var(--ink);color:var(--ink)}
+.boards-filters button .n{color:var(--ink-35);letter-spacing:0;flex:none}
+.boards-filters button.on{
+  border-color:var(--accent);color:var(--ink);
+  background:color-mix(in srgb,var(--accent) 8%,transparent);
+}
+.boards-filters button.on .n{color:var(--accent)}
 
 .boards-list{border-top:2px solid var(--ink)}
 .brow{
@@ -426,6 +439,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   .masthead{padding-top:20px}
   .card{padding:22px 20px 20px}
   .empty .actions{flex-direction:column;gap:14px}
+  .boards-filters{grid-template-columns:repeat(2,1fr)}
   .brow{grid-template-columns:minmax(0,1fr);row-gap:4px;padding:14px 0}
   .brow .bage{text-align:left}
   .brow .bgo{justify-content:flex-start;margin-top:8px}
@@ -1152,7 +1166,7 @@ function renderBoardsFilters(){
   });
   const chip = (id,label,n)=>
     '<button type="button" data-bfilter="'+esc(id)+'" class="'+(boardsView.section===id?'on':'')+'">'+
-    esc(label)+'<span class="n">'+n+'</span></button>';
+    '<span class="lbl">'+esc(label)+'</span><span class="n">'+n+'</span></button>';
   $('boardsFilters').innerHTML =
     chip('all','All',boards.listings.length) +
     [...counts.entries()].map(([s,n])=>chip(s,s,n)).join('');
