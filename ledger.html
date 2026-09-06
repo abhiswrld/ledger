@@ -109,6 +109,8 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
 }
 
+.demo-bar:not([hidden]) ~ .masthead .mh-out{display:none}
+
 /* summary table */
 .summary{padding:28px 0 10px}
 .sum-head{margin-bottom:12px}
@@ -750,7 +752,6 @@ function renderSummary(){
 
 function renderFooter(){
   if(state.demo){
-    $('footCount').textContent = 'Preview: not saved';
     $('importLink').hidden = true;
     $('exportLink').hidden = true;
     return;
@@ -793,8 +794,6 @@ function enterDemo(){
   $('authView').hidden = true;
   $('appView').hidden = false;
   $('demoBar').hidden = false;
-  $('mhUser').textContent = 'Preview';
-  $('mhOut').textContent = 'Exit preview';
   render();
 }
 
