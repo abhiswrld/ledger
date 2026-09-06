@@ -98,7 +98,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .mh-out{background:none;border:0;cursor:pointer;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55)}
 .mh-out:hover{color:var(--accent)}
 
-/* section tabs: Ledger / The Boards */
+/* section tabs */
 .tabs{display:flex;gap:0;border-bottom:2px solid var(--ink);margin-top:22px}
 .tabs button{
   background:none;border:0;cursor:pointer;
@@ -276,8 +276,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .boards-filters button.on{color:var(--ink)}
 .boards-filters button.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent)}
 
-/* classified row: ruled, small, dense.
-   last column is auto so Apply/In-ledger never collide with the age */
 .boards-list{border-top:2px solid var(--ink)}
 .brow{
   display:grid;
@@ -305,6 +303,23 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .boards-empty{padding:70px 20px;text-align:center}
 .boards-empty h3{font:italic 500 27px var(--serif)}
 .boards-empty p{color:var(--ink-55);margin:12px auto 0;max-width:44ch}
+
+/* floating jump button: bottom-right, boards tab only */
+.jump{
+  position:fixed;right:26px;bottom:26px;z-index:40;
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--ink);color:var(--paper);
+  border:0;border-radius:4px;cursor:pointer;
+  font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  padding:11px 15px;
+  box-shadow:0 10px 26px rgba(20,16,8,.35);
+  opacity:0;pointer-events:none;transform:translateY(8px);
+  transition:opacity .25s,transform .25s;
+}
+.jump.show{opacity:1;pointer-events:auto;transform:none}
+.jump:hover{background:var(--accent)}
+.jump svg{transition:transform .3s}
+.jump.up svg{transform:rotate(180deg)}
 
 /* empty states */
 .empty{padding:76px 20px;text-align:center}
@@ -346,7 +361,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .field input:focus,.field textarea:focus{outline:none;border-bottom:2px solid var(--ink)}
 .field input::placeholder,.field textarea::placeholder{color:var(--ink-35);font-weight:400}
 .field textarea{resize:vertical;min-height:70px;line-height:1.55}
-/* link field with an open button beside it */
 .linkrow{display:flex;gap:10px;align-items:center}
 .linkrow input{flex:1}
 .linkopen{
@@ -407,6 +421,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   .brow{grid-template-columns:minmax(0,1fr);row-gap:4px;padding:14px 0}
   .brow .bage{text-align:left}
   .brow .bgo{justify-content:flex-start;margin-top:8px}
+  .jump{right:16px;bottom:16px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -546,6 +561,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
             <select id="boardsSort">
               <option value="new">Newest</option>
               <option value="company">Company A–Z</option>
+              <option value="repo">Repo order</option>
             </select>
           </label>
         </div>
@@ -572,6 +588,11 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   </div>
 </div>
 
+<!-- floating jump button, boards tab only -->
+<button type="button" class="jump" id="jumpBtn" hidden>
+  <svg class="ic"><use href="#i-chev"/></svg><span id="jumpLabel">Bottom</span>
+</button>
+
 <!-- entry modal (new + edit) -->
 <div id="overlay" class="overlay" hidden>
   <form id="entryForm" class="card" novalidate autocomplete="off">
@@ -587,7 +608,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       <span class="flabel">Status</span>
       <div class="segd" role="radiogroup">
         <label style="--sc:var(--c-applied)"><input type="radio" name="fStatus" value="applied" checked><span><i class="dot" style="background:var(--c-applied)"></i>Applied</span></label>
-        <label style="--sc:var(--c-interview)"><input type="radio" name="fStatus" value="interview"><span><i class="dot" style="background:var(--c-interview)"></i>Interview</span></label>
+        <label style="--sc:var(--c-interview)"><input type="radio" name="fStatus"][value="interview"><span><i class="dot" style="background:var(--c-interview)"></i>Interview</span></label>
         <label style="--sc:var(--c-offer)"><input type="radio" name="fStatus" value="offer"><span><i class="dot" style="background:var(--c-offer)"></i>Offer</span></label>
         <label style="--sc:var(--c-rejected)"><input type="radio" name="fStatus" value="rejected"><span><i class="dot" style="background:var(--c-rejected)"></i>Rejected</span></label>
       </div>
@@ -761,10 +782,9 @@ function boardsCacheGet(){
 }
 function boardsCacheSet(b){ safeSet(BOARDS_KEY, JSON.stringify(b)); }
 
-// the README is markdown with HTML tables embedded. the category
-// headers are markdown (## 💻 Software Engineering Internship Roles),
-// so we walk the file line by line: headings set the current section,
-// table chunks get parsed with DOMParser and attributed to it.
+// the README is markdown with embedded HTML tables. walk it line by
+// line: markdown headings set the current section, table chunks get
+// DOMParser'd and attributed to it. pos keeps the repo's own order.
 function parseBoards(md){
   const out = [];
   let section = '';
@@ -772,8 +792,6 @@ function parseBoards(md){
   let buf = [];
   let inTable = false;
 
-  // headings that aren't categories ("See Full List" etc.) keep
-  // the previous section, so continuation tables land correctly
   const JUNK = /see full list|back to top|contributors|legend|faq|browse|jump to|internships by|table_start|do not change/i;
 
   function setSection(text){
@@ -831,6 +849,7 @@ function parseBoards(md){
       if(!company || !role || !link) continue;
       out.push({
         id: 'b_'+out.length,
+        pos: out.length,          // repo position, for "repo order" sort
         company, companyUrl,
         role, location, link,
         age, ageDays: ageDays(age),
@@ -847,10 +866,8 @@ function parseBoards(md){
       if(t.includes('</table>')){ inTable = false; flush(); }
       continue;
     }
-    // markdown heading
     const mh = t.match(/^#{1,6}\s+(.+)/);
     if(mh){ setSection(mh[1]); continue; }
-    // inline HTML heading
     const hh = t.match(/^<h[1-4][^>]*>(.*?)<\/h[1-4]>/i);
     if(hh){ setSection(hh[1]); continue; }
   }
@@ -1096,6 +1113,7 @@ function renderBoards(){
       '<h3>No listings yet.</h3>'+
       '<p>Hit refresh to pull the latest internship listings.</p>';
     $('boardsMoreBtn').hidden = true;
+    syncJump();
     return;
   }
 
@@ -1105,6 +1123,7 @@ function renderBoards(){
   const q = boardsView.query.trim().toLowerCase();
   if(q) list = list.filter(l=>[l.role,l.company,l.location,l.section].some(v=>v && v.toLowerCase().includes(q)));
   if(boardsView.sort === 'company') list.sort((a,b)=> a.company.localeCompare(b.company));
+  else if(boardsView.sort === 'repo') list.sort((a,b)=> (a.pos??0)-(b.pos??0));
   else list.sort((a,b)=> (a.ageDays-b.ageDays) || a.company.localeCompare(b.company));
 
   const shown = Math.min(boardsView.shown, list.length);
@@ -1115,6 +1134,7 @@ function renderBoards(){
 
   $('boardsList').innerHTML = list.slice(0, boardsView.shown).map(browHTML).join('');
   $('boardsMoreBtn').hidden = list.length <= boardsView.shown;
+  syncJump();
 }
 
 function browHTML(l){
@@ -1191,9 +1211,44 @@ function setTab(tab){
   $('tabBoards').classList.toggle('on', !ledger);
   $('ledgerTab').hidden = !ledger;
   $('boardsTab').hidden = ledger;
+  syncJump();
 }
  $('tabLedger').addEventListener('click', ()=>setTab('ledger'));
  $('tabBoards').addEventListener('click', ()=>setTab('boards'));
+
+// ---------- floating jump button ----------
+// shows on the boards tab after scrolling; jumps to the last rendered
+// listing, then flips to "top" once you're near the bottom
+const jumpBtn = $('jumpBtn');
+function syncJump(){
+  const onBoards = !$('boardsTab').hidden && !$('appView').hidden;
+  if(!onBoards){
+    jumpBtn.classList.remove('show');
+    return;
+  }
+  const rows = $('boardsList').children;
+  const nearBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 220;
+  jumpBtn.classList.toggle('up', nearBottom);
+  $('jumpLabel').textContent = nearBottom ? 'Top' : 'Bottom';
+  if(rows.length > 12){
+    jumpBtn.removeAttribute('hidden');
+    jumpBtn.classList.add('show');
+  }
+  else{
+    jumpBtn.classList.remove('show');
+    jumpBtn.setAttribute('hidden', 'true');
+  }
+}
+window.addEventListener('scroll', syncJump, {passive:true});
+jumpBtn.addEventListener('click', ()=>{
+  if(jumpBtn.classList.contains('up')){
+    window.scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+  // last rendered listing, or the "show more" button if it's there
+  const target = !$('boardsMoreBtn').hidden ? $('boardsMoreBtn') : (rows.length ? rows[rows.length-1] : null);
+  if(target) target.scrollIntoView({behavior:'smooth', block:'end'});
+});
 
 // ---------- row interactions ----------
 function toggleRow(id){
@@ -1277,7 +1332,7 @@ function handleDelete(btn, id){
 });
 
  $('boardsSearch').addEventListener('input', e=>{
-  boardsView.query = e.target.value;
+  boardsView.query = e.value || e.target.value;
   boardsView.shown = 50;
   renderBoards();
 });
