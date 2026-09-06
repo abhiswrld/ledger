@@ -120,12 +120,13 @@ body::before{
 .toolbar .btn-ink{padding:11px 18px}
 
 .ledger{border-top:2px solid var(--ink);position:relative}
-/* TODO: red line runs through the entry text — move it into the gutter */
+/* red margin rule — sits in the gutter between the number and the entry,
+   z-index keeps it above the row hover backgrounds */
 .ledger::before{
   content:"";position:absolute;top:0;bottom:0;left:var(--gut);width:1px;
-  background:color-mix(in srgb,var(--accent) 32%,transparent);pointer-events:none;
+  background:color-mix(in srgb,var(--accent) 32%,transparent);
+  z-index:1;pointer-events:none;
 }
-/* TODO: header is a grid, rows are stacked — columns don't line up */
 .gridrow{display:grid;grid-template-columns:var(--gut) minmax(0,1fr) 150px 132px 44px;align-items:center}
 .colhead{padding:11px 0 9px;border-bottom:1px solid var(--line-2)}
 .colhead span{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55)}
@@ -133,30 +134,39 @@ body::before{
 .ch-applied{text-align:right}
 .ch-entry{padding-left:var(--pad)}
 
-.row{position:relative;padding:18px 0 18px var(--pad);border-bottom:1px solid var(--line);cursor:pointer}
+/* rows use the same grid as the header — that's the whole fix */
+.row{
+  position:relative;
+  display:grid;
+  grid-template-columns:var(--gut) minmax(0,1fr) 150px 132px 44px;
+  align-items:center;
+  border-bottom:1px solid var(--line);cursor:pointer;
+}
 .row:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 .row.open{background:color-mix(in srgb,var(--ink) 3.5%,transparent)}
-.no{font:400 11px var(--mono);color:var(--ink-55);margin-bottom:2px}
+.no{font:400 11px var(--mono);color:var(--ink-55);text-align:right;padding:20px 16px 20px 0}
+.entry{padding:18px 0 18px var(--pad)}
 .role{font:500 19px/1.3 var(--serif);letter-spacing:.005em}
 .meta{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font:400 11.5px var(--mono);color:var(--ink-55)}
 .meta .m-co{color:var(--ink-70);font-weight:500}
 .msep{color:var(--ink-35)}
-.status{display:inline-flex;align-items:center;gap:8px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-top:12px}
-.date{display:inline-block;margin-left:20px;font:400 12px var(--mono);color:var(--ink-70)}
+.status{display:flex;align-items:center;gap:8px;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.date{text-align:right;font:400 12px var(--mono);color:var(--ink-70)}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%}
-.chev{position:absolute;right:0;top:18px;color:var(--ink-35)}
+.chev{display:flex;justify-content:center;color:var(--ink-35)}
 .chev svg{transition:transform .25s}
 .row.open .chev svg{transform:rotate(180deg)}
 
-/* expanded detail — TODO: animate the toggle */
-.detail{display:none}
+/* expanded detail — spans the full row, indented to sit under the entry text.
+   TODO: animate the toggle */
+.detail{display:none;grid-column:1/-1}
 .row.open .detail{display:block}
-.detail-body{padding:16px 0 10px}
+.detail-body{padding:2px 0 14px calc(var(--gut) + var(--pad))}
 .facts{display:flex;flex-wrap:wrap;gap:14px 44px}
 .facts dt{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55);margin-bottom:3px}
 .facts dd{font:400 14px var(--sans)}
 .notes{margin-top:18px;padding-left:16px;border-left:2px solid var(--line-2);font:italic 400 15px/1.6 var(--serif);color:var(--ink-70);white-space:pre-wrap;max-width:70ch}
-.detail-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-top:20px}
+.detail-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-top:20px;margin-right:var(--pad)}
 .markas{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .markas .mlabel{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55)}
 .stampbtn{
@@ -500,10 +510,12 @@ function rowHTML(app, idx){
 
   return '<article class="row'+(open?' open':'')+'" data-id="'+app.id+'">'+
     '<div class="no">'+String(idx+1).padStart(2,'0')+'</div>'+
-    '<h3 class="role">'+esc(app.role)+'</h3>'+
-    '<div class="meta">'+meta.join('<span class="msep">·</span>')+'</div>'+
+    '<div class="entry">'+
+      '<h3 class="role">'+esc(app.role)+'</h3>'+
+      '<div class="meta">'+meta.join('<span class="msep">·</span>')+'</div>'+
+    '</div>'+
     '<div class="status" style="color:'+st.color+'"><i class="dot" style="background:'+st.color+'"></i>'+st.label+'</div>'+
-    '<span class="date">'+(app.appliedDate ? fmtDate(app.appliedDate) : '—')+'</span>'+
+    '<div class="date">'+(app.appliedDate ? fmtDate(app.appliedDate) : '—')+'</div>'+
     '<div class="chev">'+icon('chev')+'</div>'+
     '<div class="detail"><div class="detail-body">'+
       (facts.length ? '<dl class="facts">'+facts.map(f=>'<div><dt>'+f[0]+'</dt><dd>'+esc(f[1])+'</dd></div>').join('')+'</dl>' : '')+
