@@ -35,6 +35,7 @@ body::before{
 }
 .wrap{max-width:980px;margin:0 auto;padding:0 28px}
 .ic{width:13px;height:13px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;border-radius:2px;padding:0 1px}
 
 /* ---------- cover / login ---------- */
 .auth{min-height:100vh;display:grid;place-items:center;padding:48px 24px}
@@ -74,6 +75,12 @@ body::before{
 .btn-ink:hover{background:var(--accent)}
 .auth-form .btn-ink{width:100%}
 .auth-foot{margin-top:22px;font:400 11px/1.7 var(--mono);color:var(--ink-55)}
+.linklike{
+  background:none;border:0;cursor:pointer;padding:2px 0;
+  font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);text-decoration:underline;text-underline-offset:3px;
+}
+.linklike:hover{color:var(--ink)}
 
 /* ---------- app ---------- */
 .masthead{
@@ -115,9 +122,31 @@ body::before{
 .sumtable tr.total td.sharecol{padding-left:35px}
 .sumtable tr.total td.num{font-weight:600;font-size:16px}
 
-/* toolbar */
-.toolbar{display:flex;justify-content:flex-end;padding:16px 0 14px;border-top:1px solid var(--line)}
+/* toolbar: search / sort / new entry */
+.toolbar{display:flex;align-items:center;gap:22px;padding:16px 0 14px;border-top:1px solid var(--line);flex-wrap:wrap}
+.search{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-2);padding:6px 2px;color:var(--ink-55)}
+.search:focus-within{border-color:var(--ink);color:var(--ink)}
+.search input{flex:1;border:0;background:none;font:400 16px var(--sans);outline:none}
+.search input::placeholder{color:var(--ink-35)}
+.toolbar-right{display:flex;align-items:center;gap:22px}
+.sortwrap{display:flex;align-items:baseline;gap:8px;font:500 10px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-55)}
+.sortwrap select{
+  font:500 11.5px var(--mono);background:transparent;border:0;
+  border-bottom:1px solid var(--line-2);padding:4px 2px;color:var(--ink);cursor:pointer;
+}
 .toolbar .btn-ink{padding:11px 18px}
+
+/* status filter chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px 26px;padding:4px 0 16px}
+.chips button{
+  position:relative;background:none;border:0;cursor:pointer;
+  font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-55);display:inline-flex;align-items:center;gap:7px;padding:4px 0;
+}
+.chips button .n{color:var(--ink-35);letter-spacing:0}
+.chips button:hover{color:var(--ink)}
+.chips button.on{color:var(--ink)}
+.chips button.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent)}
 
 .ledger{border-top:2px solid var(--ink);position:relative}
 /* red margin rule — sits in the gutter between the number and the entry,
@@ -127,6 +156,7 @@ body::before{
   background:color-mix(in srgb,var(--accent) 32%,transparent);
   z-index:1;pointer-events:none;
 }
+.ledger.is-empty::before{display:none}
 .gridrow{display:grid;grid-template-columns:var(--gut) minmax(0,1fr) 150px 132px 44px;align-items:center}
 .colhead{padding:11px 0 9px;border-bottom:1px solid var(--line-2)}
 .colhead span{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55)}
@@ -205,6 +235,14 @@ body::before{
   100%{opacity:0;transform:translate(-50%,-50%) rotate(-11deg) scale(1)}
 }
 
+/* empty states */
+.empty{padding:76px 20px;text-align:center}
+.empty h3{font:italic 500 27px var(--serif)}
+.empty p{color:var(--ink-55);margin:12px auto 0;max-width:44ch}
+.empty q{font-style:italic}
+.empty .actions{margin-top:30px}
+.empty .linklike{display:inline-block;margin-top:22px}
+
 /* ---------- modal ---------- */
 .overlay{
   position:fixed;inset:0;z-index:50;padding:20px;display:grid;place-items:center;
@@ -270,6 +308,7 @@ body::before{
 <!-- icons -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></symbol>
     <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
     <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></symbol>
@@ -332,14 +371,31 @@ body::before{
     </section>
 
     <div class="toolbar">
-      <button type="button" class="btn-ink" id="addBtn">New entry</button>
+      <div class="search">
+        <svg class="ic"><use href="#i-search"/></svg>
+        <input id="searchInp" placeholder="Search role, company, notes…  ( / )">
+      </div>
+      <div class="toolbar-right">
+        <label class="sortwrap">Sort
+          <select id="sortSel">
+            <option value="recent">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="company">Company A–Z</option>
+            <option value="stage">Stage</option>
+          </select>
+        </label>
+        <button type="button" class="btn-ink" id="addBtn">New entry</button>
+      </div>
     </div>
 
-    <section class="ledger">
-      <div class="colhead gridrow">
+    <div class="chips" id="chips"></div>
+
+    <section class="ledger" id="ledger">
+      <div class="colhead gridrow" id="colhead">
         <span class="ch-no">№</span><span class="ch-entry">Entry</span><span>Status</span><span class="ch-applied">Applied</span><span></span>
       </div>
       <div id="list"></div>
+      <div id="emptyBox"></div>
     </section>
   </div>
 </div>
@@ -411,7 +467,8 @@ const WORDS = ['zero','one','two','three','four','five','six','seven','eight','n
 
 let state = { user:null };
 let data  = { apps:[] };
-let view  = { openId:null };
+// view state: filter, sort, search — TODO: remember these between visits
+let view  = { openId:null, filter:'all', sort:'recent', query:'' };
 let editingId = null;
 
 const $ = id => document.getElementById(id);
@@ -421,6 +478,16 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8
 const todayISO = () => { const d=new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const w = n => n <= 20 ? WORDS[n] : String(n);
+
+// escape + highlight search matches
+function mark(s, q){
+  s = String(s);
+  if(!q) return esc(s);
+  try{
+    const re = new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+    return s.split(re).map((p,i)=> i%2 ? '<mark>'+esc(p)+'</mark>' : esc(p)).join('');
+  }catch{ return esc(s); }
+}
 
 // storage available? (some private modes block it entirely)
 let storageOK = true;
@@ -492,13 +559,29 @@ function fmtFull(iso){
   return d.getDate()+' '+MONF[d.getMonth()]+' '+d.getFullYear();
 }
 
+function sortFn(mode){
+  const order = {applied:0, interview:1, offer:2, rejected:3};
+  const cmpDate = (a,b,asc)=>{
+    const ka=a.appliedDate||'0', kb=b.appliedDate||'0';
+    if(ka!==kb){ const d = ka<kb?-1:1; return asc?d:-d; }
+    return (b.created||0)-(a.created||0);
+  };
+  switch(mode){
+    case 'oldest': return (a,b)=>cmpDate(a,b,true);
+    case 'company':return (a,b)=>(a.company+' '+a.role).localeCompare(b.company+' '+b.role);
+    case 'stage':  return (a,b)=>(order[a.status]-order[b.status]) || cmpDate(a,b,false);
+    default:       return (a,b)=>cmpDate(a,b,false);
+  }
+}
+
 function rowHTML(app, idx){
   const st = STATUSES[app.status] || STATUSES.applied;
   const open = view.openId === app.id;
+  const q = view.query.trim();
 
-  const meta = ['<span class="m-co">'+esc(app.company)+'</span>'];
-  if(app.location) meta.push('<span>'+esc(app.location)+'</span>');
-  if(app.source)   meta.push('<span>via '+esc(app.source)+'</span>');
+  const meta = ['<span class="m-co">'+mark(app.company,q)+'</span>'];
+  if(app.location) meta.push('<span>'+mark(app.location,q)+'</span>');
+  if(app.source)   meta.push('<span>via '+mark(app.source,q)+'</span>');
 
   const nextFull = (app.nextStep||'') + (app.nextDate ? ' — '+fmtFull(app.nextDate) : '');
   const facts = [
@@ -511,15 +594,15 @@ function rowHTML(app, idx){
   return '<article class="row'+(open?' open':'')+'" data-id="'+app.id+'">'+
     '<div class="no">'+String(idx+1).padStart(2,'0')+'</div>'+
     '<div class="entry">'+
-      '<h3 class="role">'+esc(app.role)+'</h3>'+
+      '<h3 class="role">'+mark(app.role,q)+'</h3>'+
       '<div class="meta">'+meta.join('<span class="msep">·</span>')+'</div>'+
     '</div>'+
     '<div class="status" style="color:'+st.color+'"><i class="dot" style="background:'+st.color+'"></i>'+st.label+'</div>'+
-    '<div class="date">'+(app.appliedDate ? fmtDate(app.appliedDate) : '—')+'</div>'+
+    '<div class="date">'+(app.appliedDate ? mark(fmtDate(app.appliedDate),q) : '—')+'</div>'+
     '<div class="chev">'+icon('chev')+'</div>'+
     '<div class="detail"><div class="detail-body">'+
-      (facts.length ? '<dl class="facts">'+facts.map(f=>'<div><dt>'+f[0]+'</dt><dd>'+esc(f[1])+'</dd></div>').join('')+'</dl>' : '')+
-      (app.notes ? '<blockquote class="notes">'+esc(app.notes)+'</blockquote>' : '')+
+      (facts.length ? '<dl class="facts">'+facts.map(f=>'<div><dt>'+f[0]+'</dt><dd>'+mark(f[1],q)+'</dd></div>').join('')+'</dl>' : '')+
+      (app.notes ? '<blockquote class="notes">'+mark(app.notes,q)+'</blockquote>' : '')+
       '<div class="detail-actions">'+
         '<div class="markas"><span class="mlabel">Mark as</span>'+
           STATUS_IDS.map(id=>'<button type="button" class="stampbtn'+(id===app.status?' cur':'')+'" data-status="'+id+'" style="--sc:'+STATUSES[id].color+'">'+STATUSES[id].label+'</button>').join('')+
@@ -534,7 +617,49 @@ function rowHTML(app, idx){
 }
 
 function renderList(){
-  $('list').innerHTML = data.apps.map(rowHTML).join('');
+  let apps = [...data.apps];
+  if(view.filter !== 'all') apps = apps.filter(a=>a.status === view.filter);
+  const q = view.query.trim().toLowerCase();
+  if(q) apps = apps.filter(a=>[a.role,a.company,a.source,a.location,a.notes].some(v=>v && v.toLowerCase().includes(q)));
+  apps.sort(sortFn(view.sort));
+
+  const emptyBox = $('emptyBox');
+  const ledger = $('ledger');
+  if(!data.apps.length){
+    $('list').innerHTML = '';
+    $('colhead').hidden = true;
+    ledger.classList.add('is-empty');
+    emptyBox.innerHTML =
+      '<div class="empty"><h3>Nothing in the ledger yet.</h3>'+
+      '<div class="actions"><button type="button" class="btn-ink" data-action="add">Make the first entry</button></div></div>';
+    return;
+  }
+  if(!apps.length){
+    $('list').innerHTML = '';
+    $('colhead').hidden = true;
+    ledger.classList.add('is-empty');
+    emptyBox.innerHTML =
+      '<div class="empty"><h3>No entries match.</h3>'+
+      '<p>Nothing found'+(q?' for <q>'+esc(view.query.trim())+'</q>':'')+
+      (view.filter!=='all'?' under '+STATUSES[view.filter].label:'')+'.</p>'+
+      '<button type="button" class="linklike" data-action="clear">Clear search &amp; filters</button></div>';
+    return;
+  }
+  ledger.classList.remove('is-empty');
+  $('colhead').hidden = false;
+  emptyBox.innerHTML = '';
+  $('list').innerHTML = apps.map(rowHTML).join('');
+}
+
+function renderChips(){
+  const c = { all:data.apps.length, applied:0, interview:0, offer:0, rejected:0 };
+  data.apps.forEach(a=>{ if(c[a.status]!==undefined) c[a.status]++; });
+  const chip = (id,label,n,pre)=>
+    '<button type="button" data-filter="'+id+'" aria-pressed="'+(view.filter===id)+'" class="'+(view.filter===id?'on':'')+'">'+
+    (pre||'')+label+'<span class="n">'+n+'</span></button>';
+  $('chips').innerHTML =
+    chip('all','All',c.all) +
+    STATUS_IDS.map(id=>chip(id,STATUSES[id].label,c[id],'<i class="dot" style="background:'+STATUSES[id].color+'"></i>')).join('');
 }
 
 function renderSummary(){
@@ -582,12 +707,15 @@ function renderSummary(){
 
 function render(){
   renderSummary();
+  renderChips();
   renderList();
 }
 
 function enterApp(){
   data = loadData(state.user);
-  view.openId = null;
+  view = { openId:null, filter:'all', sort:'recent', query:'' };
+  $('searchInp').value = '';
+  $('sortSel').value = 'recent';
   $('mhUser').textContent = state.user;
   $('authView').hidden = true;
   $('appView').hidden = false;
@@ -651,6 +779,29 @@ function handleDelete(btn, id){
   // don't collapse when clicking inside the open detail
   if(e.target.closest('.detail')) return;
   toggleRow(id);
+});
+
+// ---------- search / filter / sort ----------
+ $('searchInp').addEventListener('input', e=>{ view.query = e.target.value; render(); });
+ $('sortSel').addEventListener('change', e=>{ view.sort = e.target.value; render(); });
+
+ $('chips').addEventListener('click', e=>{
+  const b = e.target.closest('[data-filter]');
+  if(!b) return;
+  view.filter = b.dataset.filter;
+  render();
+});
+
+// empty state buttons
+ $('emptyBox').addEventListener('click', e=>{
+  const b = e.target.closest('[data-action]');
+  if(!b) return;
+  if(b.dataset.action === 'add') openModal(null);
+  else if(b.dataset.action === 'clear'){
+    view.query = ''; $('searchInp').value = '';
+    view.filter = 'all';
+    render();
+  }
 });
 
 // ---------- modal (new + edit) ----------
@@ -730,7 +881,17 @@ entryForm.addEventListener('submit', e=>{
 });
 
 document.addEventListener('keydown', e=>{
-  if(e.key === 'Escape' && !overlay.hidden) closeModal();
+  if(e.key === 'Escape' && !overlay.hidden){ closeModal(); return; }
+  // "/" jumps to search
+  if(e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey
+     && !$('appView').hidden && overlay.hidden){
+    const typing = e.target.closest && e.target.closest('input,textarea,select');
+    if(!typing){
+      e.preventDefault();
+      $('searchInp').focus();
+      $('searchInp').select();
+    }
+  }
 });
 
 // ---------- auth (name only) ----------
