@@ -28,7 +28,3 @@ Open `index.html` in a browser, or use the live demo above.
 
 - **A live internship feed.** Pull open roles directly from public trackers like [SimplifyJobs' Summer2027 Internships list](https://github.com/SimplifyJobs/Summer2027-Internships), parsed straight from the repo's README. Browse them alongside your ledger and add one to your tracker in a click.
 - **Suggestions based on your own history.** Surface open roles that look like the ones that got you interviews or offers before (by company, title, or location), and flag ones that resemble past rejections using a weighted-matching heuristic.
-
-## Repo
-
-[github.com/abhiswrld/ledger](https://github.com/abhiswrld/ledger)
