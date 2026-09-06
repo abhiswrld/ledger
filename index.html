@@ -28,7 +28,6 @@ body{
   font:400 15px/1.5 var(--sans);
   min-height:100vh;
 }
-/* paper grain */
 body::before{
   content:""; position:fixed; inset:0; pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
@@ -75,8 +74,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 }
 .btn-ink:hover{background:var(--accent)}
 .auth-form .btn-ink{width:100%}
-/* peek sits under the submit, same box: border eats 2px of the padding
-   so both buttons end up the same height */
 .auth-peek{
   display:block;width:100%;margin-top:12px;
   padding:13px 16px;justify-content:center;
@@ -113,7 +110,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   display:inline-flex;align-items:center;gap:9px;
   font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
 }
-/* masthead button is redundant during preview, the banner has one */
 .demo-bar:not([hidden]) ~ .masthead .mh-out{display:none}
 
 /* summary table */
@@ -131,7 +127,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .sumtable tbody tr.dim{opacity:.45}
 .stagecell{display:inline-flex;align-items:center;gap:9px;font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-70)}
 .sumtable td.num{text-align:right;font:500 15px var(--mono);font-variant-numeric:tabular-nums}
-/* share column: left padding so the bar doesn't touch the count */
 .sumtable th.sharecol{padding-left:34px}
 .sumtable td.sharecol{padding-left:34px}
 .share{display:flex;align-items:center;gap:12px}
@@ -143,7 +138,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .sumtable tr.total td.sharecol{padding-left:35px}
 .sumtable tr.total td.num{font-weight:600;font-size:16px}
 
-/* toolbar: search / sort / new entry */
+/* toolbar */
 .toolbar{display:flex;align-items:center;gap:22px;padding:16px 0 14px;border-top:1px solid var(--line);flex-wrap:wrap}
 .search{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-2);padding:6px 2px;color:var(--ink-55)}
 .search:focus-within{border-color:var(--ink);color:var(--ink)}
@@ -170,7 +165,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .chips button.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent)}
 
 .ledger{border-top:2px solid var(--ink);position:relative}
-/* red margin rule: numbers sit in the gutter to its left */
 .ledger::before{
   content:"";position:absolute;top:0;bottom:0;left:var(--gut);width:1px;
   background:color-mix(in srgb,var(--accent) 32%,transparent);
@@ -183,7 +177,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .ch-applied{text-align:right}
 .ch-entry{padding-left:var(--pad)}
 
-/* rows use the same grid as the header, that's the whole fix */
 .row{
   position:relative;
   display:grid;
@@ -206,7 +199,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .chev svg{transition:transform .25s}
 .row.open .chev svg{transform:rotate(180deg)}
 
-/* expanded detail: animated slide via grid-template-rows */
 .detail{grid-column:1/-1;display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
 .row.open .detail{grid-template-rows:1fr}
 .detail-in{overflow:hidden;min-height:0}
@@ -237,7 +229,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .tool-del:hover{border-color:var(--accent);color:var(--accent)}
 .tool-del.armed{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:var(--accent);color:var(--accent)}
 
-/* rubber stamp: injected on status change, removes itself */
 .stamp{
   position:absolute;left:50%;top:50%;z-index:5;pointer-events:none;
   font:600 13px var(--mono);letter-spacing:.28em;text-transform:uppercase;
@@ -328,7 +319,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 }
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
-/* ---------- responsive: phones ---------- */
+/* ---------- responsive ---------- */
 @media (max-width:700px){
   .colhead{display:none}
   .ledger::before{display:none}
@@ -344,7 +335,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   .card{padding:22px 20px 20px}
   .empty .actions{flex-direction:column;gap:14px}
 }
-/* respect reduced-motion prefs */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
@@ -496,6 +486,10 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       <label class="field"><span class="flabel">Next step</span><input id="fNext" placeholder="Reply to recruiter"></label>
       <label class="field"><span class="flabel">Next step date</span><input id="fNextDate" type="date"></label>
     </div>
+    <div class="frow2">
+      <label class="field"><span class="flabel">Link</span><input id="fLink" type="url" placeholder="https://…"></label>
+      <span></span>
+    </div>
     <label class="field"><span class="flabel">Notes</span><textarea id="fNotes" rows="3" placeholder="Who you spoke to, what to remember…"></textarea></label>
     <div class="formerr" id="fErr"></div>
     <div class="card-foot">
@@ -512,10 +506,11 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 'use strict';
 
 // storage keys
-const ACCOUNTS_KEY = 'ledger.accounts.v1';   // array of names
-const OLD_USERS_KEY = 'ledger.users.v1';     // pre-password-drop format
-const DATA_KEY   = 'ledger.data.v1.';        // + name
+const ACCOUNTS_KEY = 'ledger.accounts.v1';
+const OLD_USERS_KEY = 'ledger.users.v1';
+const DATA_KEY   = 'ledger.data.v1.';
 const SESSION_KEY = 'ledger.session.v1';
+const BOARDS_KEY = 'ledger.boards.v1';      // cached job listings
 
 const STATUSES = {
   applied:  {label:'Applied',   color:'var(--c-applied)'},
@@ -532,9 +527,9 @@ const WORDS = ['zero','one','two','three','four','five','six','seven','eight','n
 
 let state = { user:null, demo:false };
 let data  = { apps:[] };
-// view state: filter + sort persist (data.prefs), search resets
 let view  = { openId:null, filter:'all', sort:'recent', query:'' };
 let editingId = null;
+let boards = { listings:[], fetched:0 };   // v2: the job boards
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -544,7 +539,6 @@ const todayISO = () => { const d=new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const w = n => n <= 20 ? WORDS[n] : String(n);
 
-// escape + highlight search matches
 function mark(s, q){
   s = String(s);
   if(!q) return esc(s);
@@ -554,13 +548,17 @@ function mark(s, q){
   }catch{ return esc(s); }
 }
 
-// storage available? (some private modes block it entirely)
+// ordinal suffix for the day
+function ord(n){
+  if(n%100 >= 11 && n%100 <= 13) return 'th';
+  const s = ['th','st','nd','rd','th','th','th','th','th','th'];
+  return s[n%10];
+}
+
 let storageOK = true;
 try{ localStorage.setItem('ledger.test','1'); localStorage.removeItem('ledger.test'); }
 catch{ storageOK = false; }
 
-// every write goes through this: quota or blocked writes return
-// false instead of throwing mid-click
 function safeSet(key, val){
   try{ localStorage.setItem(key, val); return true; }
   catch{ return false; }
@@ -571,7 +569,6 @@ function accountsGet(){
 }
 function accountsSet(a){ return safeSet(ACCOUNTS_KEY, JSON.stringify(a)); }
 
-// one-time: port old password accounts to plain names
 try{
   if(!localStorage.getItem(ACCOUNTS_KEY) && localStorage.getItem(OLD_USERS_KEY)){
     accountsSet(Object.keys(JSON.parse(localStorage.getItem(OLD_USERS_KEY))));
@@ -588,19 +585,16 @@ function loadData(user){
 
 let saveFailed = false;
 function save(){
-  // preview mode never writes to storage
   if(state.demo || !state.user) return true;
   const ok = safeSet(DATA_KEY+state.user, JSON.stringify(data));
   if(ok){
     saveFailed = false;
   }else if(!saveFailed){
-    // toast once per failure streak, not on every keystroke-level save
     saveFailed = true;
     toast("Couldn't save. Export a copy to keep your changes.");
   }
   return ok;
 }
-// stash filter + sort with the data so they survive a refresh
 function savePrefs(){
   data.prefs = { filter:view.filter, sort:view.sort };
   return save();
@@ -622,9 +616,111 @@ function seedApps(){
   return rows.map((r,i)=>({
     id:uid(), role:r[0], company:r[1], status:r[2], appliedDate:day(r[3]),
     source:r[4], location:r[5], salary:r[6], nextStep:r[7],
-    nextDate: r[8]==null ? '' : day(r[8]), notes:r[9],
+    nextDate: r[8]==null ? '' : day(r[8]), notes:r[9], link:'',
     created:t-i*36e5, updated:t
   }));
+}
+
+// ---------- v2: the boards ----------
+// listings come from the public SimplifyJobs internship repo
+// (raw.githubusercontent serves it with open CORS). the README
+// embeds its listings in HTML tables, so we parse it with the
+// browser's own DOMParser. results are cached in localStorage.
+const BOARDS_URL = 'https://raw.githubusercontent.com/SimplifyJobs/Summer2027-Internships/dev/README.md';
+const BOARDS_TTL = 6*60*60*1000;   // cache for 6 hours
+
+function boardsCacheGet(){
+  try{
+    const raw = localStorage.getItem(BOARDS_KEY);
+    if(raw){
+      const b = JSON.parse(raw);
+      if(b && Array.isArray(b.listings)) return b;
+    }
+  }catch{}
+  return { listings:[], fetched:0 };
+}
+function boardsCacheSet(b){ safeSet(BOARDS_KEY, JSON.stringify(b)); }
+
+function parseBoards(md){
+  const doc = new DOMParser().parseFromString(md, 'text/html');
+  const out = [];
+  let section = '';
+  let lastCompany = { name:'', url:'' };
+
+  // readable text from a cell: <br> becomes ", ", <details> collapses
+  // to its summary ("7 locations" instead of a wall of cities)
+  function tdText(td){
+    const c = td.cloneNode(true);
+    c.querySelectorAll('br').forEach(br=> br.replaceWith(document.createTextNode(', ')));
+    c.querySelectorAll('details').forEach(d=>{
+      const s = d.querySelector('summary');
+      d.replaceWith(document.createTextNode(s ? s.textContent : ''));
+    });
+    return c.textContent.replace(/\s+/g,' ').trim().replace(/(^(,\s*)?)|((,\s*)?$)/g,'').replace(/,\s*,/g,',');
+  }
+
+  // "2d" / "3w" -> numeric days, for sorting
+  function ageDays(age){
+    const m = age.match(/^(\d+)\s*(d|w|mo|m|h)/i);
+    if(!m) return 9999;
+    const n = +m[1], u = m[2].toLowerCase();
+    return u==='d' ? n : u==='w' ? n*7 : (u==='mo'||u==='m') ? n*30 : n/24;
+  }
+
+  for(const el of doc.body.querySelectorAll('h2, table')){
+    if(el.tagName === 'H2'){
+      section = el.textContent.replace(/ Internship Roles/i,'')
+        .replace(/[^\w\s&+/-]/g,' ').replace(/\s+/g,' ').trim();
+      lastCompany = { name:'', url:'' };
+      continue;
+    }
+    for(const tr of el.querySelectorAll('tbody tr')){
+      const tds = tr.querySelectorAll('td');
+      if(tds.length < 5) continue;
+
+      const co = tds[0].querySelector('a');
+      let company, companyUrl;
+      if(co){
+        company = co.textContent.trim();
+        companyUrl = co.href || '';
+        lastCompany = { name:company, url:companyUrl };
+      }else{
+        // continuation rows belong to the company above them
+        company = lastCompany.name;
+        companyUrl = lastCompany.url;
+      }
+      const role = tdText(tds[1]);
+      const location = tdText(tds[2]);
+      // first link in the application cell is the direct posting
+      const apply = tds[3].querySelector('a');
+      const link = apply ? (apply.href || '') : '';
+      const age = tdText(tds[4]);
+      if(!company || !role || !link) continue;
+      out.push({
+        id: 'b_'+out.length,
+        company, companyUrl,
+        role, location, link,
+        age, ageDays: ageDays(age),
+        section
+      });
+    }
+  }
+  return out;
+}
+
+async function boardsRefresh(){
+  let md;
+  try{
+    const res = await fetch(BOARDS_URL, {cache:'no-store'});
+    if(!res.ok) throw new Error('http '+res.status);
+    md = await res.text();
+  }catch{
+    return { ok:false, count:boards.listings.length };
+  }
+  const listings = parseBoards(md);
+  boards = { listings, fetched: Date.now() };
+  boardsCacheSet(boards);
+  return { ok:true, count:listings.length };
 }
 
 // ---------- toast ----------
@@ -638,12 +734,6 @@ function toast(msg){
 }
 
 // ---------- rendering ----------
-// ordinal suffix for the day
-function ord(n){
-  if(n%100 >= 11 && n%100 <= 13) return 'th';
-  const s = ['th','st','nd','rd','th','th','th','th','th','th'];
-  return s[n%10];
-}
 function fmtDate(iso){
   const d = new Date(iso+'T00:00:00');
   return MON[d.getMonth()]+' '+d.getDate()+ord(d.getDate());
@@ -682,7 +772,8 @@ function rowHTML(app, idx){
     ['Company', app.company], ['Location', app.location], ['Source', app.source],
     ['Salary', app.salary],
     ['Applied', app.appliedDate ? fmtFull(app.appliedDate) : ''],
-    ['Next step', nextFull]
+    ['Next step', nextFull],
+    ['Link', app.link],
   ].filter(f=>f[1]);
 
   return '<article class="row'+(open?' open':'')+'" data-id="'+app.id+'">'+
@@ -776,7 +867,6 @@ function renderSummary(){
   if(min !== '9999') cap += ' since '+fmtDate(min);
   $('sumCap').textContent = cap+'.';
 
-  // largest remainder: floors + distribute leftover, so shares sum to 100
   const parts = STATUS_IDS.map(id=>{
     const raw = c[id]*100/total;
     return { id, v:Math.floor(raw), r:raw%1 };
@@ -827,7 +917,6 @@ function enterApp(){
   state.demo = false;
   $('demoBar').hidden = true;
   data = loadData(state.user);
-  // restore saved filter + sort
   view = {
     openId:null,
     filter: (data.prefs && data.prefs.filter) || 'all',
@@ -843,7 +932,6 @@ function enterApp(){
 }
 
 // ---------- preview mode ----------
-// sample ledger in memory only, saves are blocked while it's on
 function enterDemo(){
   state.demo = true;
   data = { apps: seedApps() };
@@ -886,7 +974,6 @@ function changeStatus(id, status){
   stampRow(id, status);
 }
 
-// stamp overlay on the row, removes itself when the animation ends
 function stampRow(id, status){
   const row = document.querySelector('#list .row[data-id="'+id+'"]');
   if(!row) return;
@@ -905,7 +992,6 @@ function handleDelete(btn, id){
     if(save()) render();
     toast('Entry removed');
   }else{
-    // second click confirms
     btn.classList.add('armed');
     btn.querySelector('span').textContent = 'Confirm removal';
     setTimeout(()=>{ if(btn.isConnected){ btn.classList.remove('armed'); btn.querySelector('span').textContent='Delete'; } }, 2600);
@@ -923,7 +1009,6 @@ function handleDelete(btn, id){
     if(btn.classList.contains('act-del')){ handleDelete(btn, id); return; }
     return;
   }
-  // don't collapse when clicking inside the open detail
   if(e.target.closest('.detail')) return;
   toggleRow(id);
 });
@@ -940,7 +1025,6 @@ function handleDelete(btn, id){
   render();
 });
 
-// empty state buttons
  $('emptyBox').addEventListener('click', e=>{
   const b = e.target.closest('[data-action]');
   if(!b) return;
@@ -970,7 +1054,7 @@ function handleDelete(btn, id){
 
  $('importFile').addEventListener('change', e=>{
   const file = e.target.files && e.target.files[0];
-  e.target.value = '';   // lets the same file be picked again
+  e.target.value = '';
   if(!file) return;
   const reader = new FileReader();
   reader.onload = ()=> doImport(String(reader.result));
@@ -978,7 +1062,6 @@ function handleDelete(btn, id){
   reader.readAsText(file);
 });
 
-// validate + clean an imported file; null if it isn't a ledger export
 function normalizeImport(obj){
   if(!obj || typeof obj !== 'object' || !Array.isArray(obj.apps)) return null;
   const dateOK = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
@@ -999,6 +1082,7 @@ function normalizeImport(obj){
       nextStep: String(a.nextStep||'').trim(),
       nextDate: dateOK(a.nextDate) ? a.nextDate : '',
       notes: String(a.notes||''),
+      link: typeof a.link === 'string' ? a.link : '',
       created: typeof a.created === 'number' ? a.created : Date.now(),
       updated: typeof a.updated === 'number' ? a.updated : Date.now()
     });
@@ -1013,7 +1097,6 @@ function doImport(text){
   const apps = normalizeImport(obj);
   if(!apps){ toast("That's not a Ledger export."); return; }
 
-  // merge by id: re-importing your own export is a no-op
   let added = 0, updated = 0;
   const index = new Map(data.apps.map(a=>[a.id, a]));
   for(const app of apps){
@@ -1026,7 +1109,6 @@ function doImport(text){
       added++;
     }
   }
-  // don't hide what was just imported behind a narrow filter
   if(view.filter !== 'all' && apps.some(a=>a.status !== view.filter)) view.filter = 'all';
 
   const ok = save();
@@ -1037,24 +1119,26 @@ function doImport(text){
 // ---------- modal (new + edit) ----------
 const overlay = $('overlay'), entryForm = $('entryForm');
 
-function openModal(id){
+function openModal(id, prefill){
   editingId = id || null;
   $('fErr').textContent = '';
   $('wRole').classList.remove('missing');
   $('wCompany').classList.remove('missing');
   const a = id ? data.apps.find(x=>x.id===id) : null;
-  $('fRole').value = a ? a.role : '';
-  $('fCompany').value = a ? a.company : '';
+  const p = prefill || {};
+  $('fRole').value = a ? a.role : (p.role || '');
+  $('fCompany').value = a ? a.company : (p.company || '');
   const radio = a && entryForm.querySelector('input[name="fStatus"][value="'+a.status+'"]');
   if(radio) radio.checked = true;
   else entryForm.querySelector('input[name="fStatus"][value="applied"]').checked = true;
   $('fApplied').value = a ? (a.appliedDate||'') : todayISO();
-  $('fSource').value = a ? (a.source||'') : '';
-  $('fSalary').value = a ? (a.salary||'') : '';
-  $('fLocation').value = a ? (a.location||'') : '';
+  $('fSource').value = a ? (a.source||'') : (p.source || '');
+  $('fSalary').value = a ? (a.salary||'') : (p.salary || '');
+  $('fLocation').value = a ? (a.location||'') : (p.location || '');
   $('fNext').value = a ? (a.nextStep||'') : '';
   $('fNextDate').value = a ? (a.nextDate||'') : '';
-  $('fNotes').value = a ? (a.notes||'') : '';
+  $('fNotes').value = a ? (a.notes||'') : (p.notes || '');
+  $('fLink').value = a ? (a.link||'') : (p.link || '');
   $('formTitle').textContent = a ? 'Edit entry' : 'New entry';
   $('fSubmit').textContent = a ? 'Save changes' : 'Add entry';
   overlay.hidden = false;
@@ -1094,10 +1178,10 @@ entryForm.addEventListener('submit', e=>{
     nextStep: $('fNext').value.trim(),
     nextDate: $('fNextDate').value || '',
     notes:    $('fNotes').value.trim(),
+    link:     $('fLink').value.trim(),
     updated:  Date.now()
   };
   if(editingId){
-    // the entry can vanish if another tab deletes it while this form is open
     const target = data.apps.find(x=>x.id===editingId);
     if(!target){
       closeModal();
@@ -1122,7 +1206,6 @@ entryForm.addEventListener('submit', e=>{
 document.addEventListener('keydown', e=>{
   if(e.key === 'Escape' && !overlay.hidden){ closeModal(); return; }
   if(e.key === 'Escape' && view.openId){ view.openId = null; renderList(); return; }
-  // "/" jumps to search
   if(e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey
      && !$('appView').hidden && overlay.hidden){
     const typing = e.target.closest && e.target.closest('input,textarea,select');
@@ -1134,7 +1217,7 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-// ---------- auth (name only) ----------
+// ---------- auth ----------
 const normName = v => v.trim().toLowerCase().replace(/\s+/g,'-').slice(0,24);
 
 function renderAccountChips(){
@@ -1146,7 +1229,6 @@ function renderAccountChips(){
     accs.map(a=>'<button type="button" data-name="'+esc(a)+'">'+esc(a)+'</button>').join('');
 }
 
-// button text + seed checkbox depend on whether the name exists
 function refreshAuth(){
   const n = normName($('authUser').value);
   const exists = !!n && accountsGet().includes(n);
@@ -1175,7 +1257,7 @@ function showAuth(){
 });
 
 function signIn(name){
-  safeSet(SESSION_KEY, name);   // non-critical: worst case the login isn't remembered
+  safeSet(SESSION_KEY, name);
   state.user = name;
   enterApp();
   toast('Welcome back, '+name+'.');
@@ -1191,8 +1273,6 @@ function signIn(name){
 
   const accounts = accountsGet();
   if(!accounts.includes(name)){
-    // write the data first, then the account list: a failed write
-    // can't leave a half-created ledger behind
     const seed = $('seedChk').checked ? seedApps() : [];
     if(!safeSet(DATA_KEY+name, JSON.stringify({ apps:seed, prefs:{} }))){
       err.textContent = "Couldn't write to storage, it may be full or blocked.";
@@ -1219,16 +1299,10 @@ function signIn(name){
 });
 
 // ---------- cross-tab sync ----------
-// storage events fire in every OTHER tab that shares this origin.
-// every edit saves immediately, so reloading on the event keeps
-// tabs from silently clobbering each other
 window.addEventListener('storage', e=>{
-  // all site data cleared somewhere
   if(e.key === null && !$('appView').hidden){ showAuth(); return; }
-  // this ledger changed in another tab: reload it, keep local view state
   if(state.user && !state.demo && e.key === DATA_KEY+state.user){
     data = loadData(state.user);
-    // the entry this form was editing is gone: close before submit can hit it
     if(editingId && !data.apps.some(a=>a.id===editingId)){
       closeModal();
       toast('That entry was removed elsewhere.');
@@ -1237,20 +1311,16 @@ window.addEventListener('storage', e=>{
     render();
     return;
   }
-  // another tab switched ledgers or signed out: follow it
   if(e.key === SESSION_KEY && e.newValue !== state.user && !$('appView').hidden){
     showAuth();
     return;
   }
-  // account list changed while on the cover: refresh the quick-switch chips
   if(e.key === ACCOUNTS_KEY && !$('authView').hidden) refreshAuth();
 });
 
-// restore session on load
+// ---------- boot ----------
 (function init(){
-  if(!storageOK){
-    $('authErr').textContent = 'This browser is blocking local storage, nothing can be saved.';
-  }
+  boards = boardsCacheGet();
   refreshAuth();
   try{
     const s = localStorage.getItem(SESSION_KEY);
