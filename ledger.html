@@ -18,7 +18,7 @@
   --mono:'Spline Sans Mono',ui-monospace,monospace;
   --serif:'Fraunces',Georgia,serif;
   --sans:'Archivo',sans-serif;
-  --gut:64px; --pad:22px;
+  --gut:40px; --pad:22px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
@@ -108,7 +108,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   display:inline-flex;align-items:center;gap:9px;
   font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
 }
-
+/* masthead button is redundant during preview, the banner has one */
 .demo-bar:not([hidden]) ~ .masthead .mh-out{display:none}
 
 /* summary table */
@@ -165,8 +165,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .chips button.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent)}
 
 .ledger{border-top:2px solid var(--ink);position:relative}
-/* red margin rule: sits in the gutter between the number and the entry,
-   z-index keeps it above the row hover backgrounds */
+/* red margin rule: numbers sit in the gutter to its left */
 .ledger::before{
   content:"";position:absolute;top:0;bottom:0;left:var(--gut);width:1px;
   background:color-mix(in srgb,var(--accent) 32%,transparent);
@@ -176,7 +175,6 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .gridrow{display:grid;grid-template-columns:var(--gut) minmax(0,1fr) 150px 132px 44px;align-items:center}
 .colhead{padding:11px 0 9px;border-bottom:1px solid var(--line-2)}
 .colhead span{font:500 9.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55)}
-.ch-no{text-align:right;padding-right:16px}
 .ch-applied{text-align:right}
 .ch-entry{padding-left:var(--pad)}
 
@@ -203,7 +201,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .chev svg{transition:transform .25s}
 .row.open .chev svg{transform:rotate(180deg)}
 
-/* expanded detail: spans the full row, indented to sit under the entry text.
+/* expanded detail: spans the full row, indented to line up with the entry text.
    TODO: animate the toggle */
 .detail{display:none;grid-column:1/-1}
 .row.open .detail{display:block}
@@ -423,7 +421,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 
     <section class="ledger" id="ledger">
       <div class="colhead gridrow" id="colhead">
-        <span class="ch-no">№</span><span class="ch-entry">Entry</span><span>Status</span><span class="ch-applied">Applied</span><span></span>
+        <span></span><span class="ch-entry">Entry</span><span>Status</span><span class="ch-applied">Applied</span><span></span>
       </div>
       <div id="list"></div>
       <div id="emptyBox"></div>
@@ -507,7 +505,7 @@ const WORDS = ['zero','one','two','three','four','five','six','seven','eight','n
 
 let state = { user:null, demo:false };
 let data  = { apps:[] };
-// view state: filter, sort, search (TODO: remember these between visits)
+// view state: filter + sort persist (data.prefs), search resets
 let view  = { openId:null, filter:'all', sort:'recent', query:'' };
 let editingId = null;
 
@@ -557,6 +555,11 @@ function save(){
   // preview mode never writes to storage
   if(state.demo || !state.user) return;
   localStorage.setItem(DATA_KEY+state.user, JSON.stringify(data));
+}
+// stash filter + sort with the data so they survive a refresh
+function savePrefs(){
+  data.prefs = { filter:view.filter, sort:view.sort };
+  save();
 }
 
 function seedApps(){
@@ -752,6 +755,7 @@ function renderSummary(){
 
 function renderFooter(){
   if(state.demo){
+    $('footCount').textContent = 'Preview: not saved';
     $('importLink').hidden = true;
     $('exportLink').hidden = true;
     return;
@@ -772,11 +776,16 @@ function render(){
 function enterApp(){
   state.demo = false;
   $('demoBar').hidden = true;
-  $('mhOut').textContent = 'Sign out';
   data = loadData(state.user);
-  view = { openId:null, filter:'all', sort:'recent', query:'' };
+  // restore saved filter + sort
+  view = {
+    openId:null,
+    filter: (data.prefs && data.prefs.filter) || 'all',
+    sort:   (data.prefs && data.prefs.sort)   || 'recent',
+    query:''
+  };
   $('searchInp').value = '';
-  $('sortSel').value = 'recent';
+  $('sortSel').value = view.sort;
   $('mhUser').textContent = state.user;
   $('authView').hidden = true;
   $('appView').hidden = false;
@@ -794,6 +803,7 @@ function enterDemo(){
   $('authView').hidden = true;
   $('appView').hidden = false;
   $('demoBar').hidden = false;
+  $('mhUser').textContent = 'Preview';
   render();
 }
 
@@ -873,12 +883,13 @@ function handleDelete(btn, id){
 
 // ---------- search / filter / sort ----------
  $('searchInp').addEventListener('input', e=>{ view.query = e.target.value; render(); });
- $('sortSel').addEventListener('change', e=>{ view.sort = e.target.value; render(); });
+ $('sortSel').addEventListener('change', e=>{ view.sort = e.target.value; savePrefs(); render(); });
 
  $('chips').addEventListener('click', e=>{
   const b = e.target.closest('[data-filter]');
   if(!b) return;
   view.filter = b.dataset.filter;
+  savePrefs();
   render();
 });
 
@@ -892,6 +903,7 @@ function handleDelete(btn, id){
   else if(b.dataset.action === 'clear'){
     view.query = ''; $('searchInp').value = '';
     view.filter = 'all';
+    savePrefs();
     render();
   }
 });
