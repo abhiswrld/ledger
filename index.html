@@ -98,6 +98,17 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .mh-out{background:none;border:0;cursor:pointer;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55)}
 .mh-out:hover{color:var(--accent)}
 
+/* section tabs: Ledger / The Boards */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--ink);margin-top:22px}
+.tabs button{
+  background:none;border:0;cursor:pointer;
+  font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-55);padding:12px 22px 10px;
+  border-bottom:3px solid transparent;margin-bottom:-2px;
+}
+.tabs button:hover{color:var(--ink)}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+
 /* preview banner */
 .demo-bar{
   display:flex;justify-content:space-between;align-items:center;gap:10px 18px;flex-wrap:wrap;
@@ -245,6 +256,56 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   100%{opacity:0;transform:translate(-50%,-50%) rotate(-11deg) scale(1)}
 }
 
+/* ---------- the boards (classifieds) ---------- */
+.boards-head{
+  display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px 20px;
+  padding:26px 0 6px;
+}
+.boards-cap{font:italic 500 19px/1.4 var(--serif);color:var(--ink-70)}
+.boards-cap b{font-weight:600;color:var(--ink)}
+.boards-refresh{white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.boards-tools{display:flex;align-items:center;gap:22px;padding:14px 0 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.boards-filters{display:flex;flex-wrap:wrap;gap:8px 26px;padding:2px 0 16px}
+.boards-filters button{
+  position:relative;background:none;border:0;cursor:pointer;
+  font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-55);display:inline-flex;align-items:center;gap:7px;padding:4px 0;
+}
+.boards-filters button .n{color:var(--ink-35);letter-spacing:0}
+.boards-filters button:hover{color:var(--ink)}
+.boards-filters button.on{color:var(--ink)}
+.boards-filters button.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent)}
+
+/* classified row: ruled, small, dense.
+   last column is auto so Apply/In-ledger never collide with the age */
+.boards-list{border-top:2px solid var(--ink)}
+.brow{
+  display:grid;
+  grid-template-columns:minmax(0,1.2fr) minmax(0,2fr) 150px 50px auto;
+  column-gap:18px;
+  align-items:baseline;
+  padding:13px 0;
+  border-bottom:1px solid var(--line);
+}
+.brow:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.bco{font:500 15px/1.35 var(--serif)}
+.bco .co-dim{font:400 11px var(--mono);color:var(--ink-55);margin-left:8px}
+.brole{font:400 14px/1.4 var(--sans);color:var(--ink-70)}
+.bloc{font:400 11.5px var(--mono);color:var(--ink-55);overflow-wrap:anywhere}
+.bage{font:400 11.5px var(--mono);color:var(--ink-55);text-align:right;white-space:nowrap}
+.bgo{display:flex;justify-content:flex-end}
+.bgo button{
+  background:none;border:1px solid var(--line-2);border-radius:3px;cursor:pointer;
+  font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-70);padding:6px 11px;white-space:nowrap;
+}
+.bgo button:hover{border-color:var(--ink);color:var(--ink)}
+.brow.is-added{opacity:.55}
+.brow.is-added .bgo button{border-color:var(--c-offer);color:var(--c-offer);cursor:default;display:inline-flex;align-items:center;gap:6px}
+.boards-empty{padding:70px 20px;text-align:center}
+.boards-empty h3{font:italic 500 27px var(--serif)}
+.boards-empty p{color:var(--ink-55);margin:12px auto 0;max-width:44ch}
+
 /* empty states */
 .empty{padding:76px 20px;text-align:center}
 .empty h3{font:italic 500 27px var(--serif)}
@@ -285,6 +346,15 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .field input:focus,.field textarea:focus{outline:none;border-bottom:2px solid var(--ink)}
 .field input::placeholder,.field textarea::placeholder{color:var(--ink-35);font-weight:400}
 .field textarea{resize:vertical;min-height:70px;line-height:1.55}
+/* link field with an open button beside it */
+.linkrow{display:flex;gap:10px;align-items:center}
+.linkrow input{flex:1}
+.linkopen{
+  background:none;border:1px solid var(--line-2);border-radius:3px;cursor:pointer;
+  font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-70);padding:9px 12px;white-space:nowrap;flex:none;
+}
+.linkopen:hover{border-color:var(--ink);color:var(--ink)}
 .segd{display:flex;border:1px solid var(--line-2);border-radius:4px;overflow:hidden}
 .segd label{flex:1;position:relative}
 .segd label + label{border-left:1px solid var(--line-2)}
@@ -334,6 +404,9 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   .masthead{padding-top:20px}
   .card{padding:22px 20px 20px}
   .empty .actions{flex-direction:column;gap:14px}
+  .brow{grid-template-columns:minmax(0,1fr);row-gap:4px;padding:14px 0}
+  .brow .bage{text-align:left}
+  .brow .bgo{justify-content:flex-start;margin-top:8px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -352,6 +425,9 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
     <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v11M8 10l4 4 4-4M5 20h14"/></symbol>
     <symbol id="i-ul" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></symbol>
+    <symbol id="i-new" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 3h7v7M21 3l-9 9M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/></symbol>
   </defs>
 </svg>
 
@@ -398,51 +474,93 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       </div>
     </header>
 
-    <section class="summary">
-      <div id="sumWrap" hidden>
-        <div class="sum-head">
-          <span class="sum-cap" id="sumCap"></span>
-        </div>
-        <table class="sumtable" id="sumTable">
-          <thead>
-            <tr>
-              <th>Stage</th>
-              <th class="num">Entries</th>
-              <th class="sharecol">Share</th>
-            </tr>
-          </thead>
-          <tbody id="sumBody"></tbody>
-        </table>
-      </div>
-    </section>
+    <!-- section tabs -->
+    <nav class="tabs">
+      <button type="button" id="tabLedger" class="on">Ledger</button>
+      <button type="button" id="tabBoards">The Boards</button>
+    </nav>
 
-    <div class="toolbar">
-      <div class="search">
-        <svg class="ic"><use href="#i-search"/></svg>
-        <input id="searchInp" placeholder="Search role, company, notes…  ( / )">
+    <!-- ============ LEDGER TAB ============ -->
+    <div id="ledgerTab">
+      <section class="summary">
+        <div id="sumWrap" hidden>
+          <div class="sum-head">
+            <span class="sum-cap" id="sumCap"></span>
+          </div>
+          <table class="sumtable" id="sumTable">
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th class="num">Entries</th>
+                <th class="sharecol">Share</th>
+              </tr>
+            </thead>
+            <tbody id="sumBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="toolbar">
+        <div class="search">
+          <svg class="ic"><use href="#i-search"/></svg>
+          <input id="searchInp" placeholder="Search role, company, notes…  ( / )">
+        </div>
+        <div class="toolbar-right">
+          <label class="sortwrap">Sort
+            <select id="sortSel">
+              <option value="recent">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="company">Company A–Z</option>
+              <option value="stage">Stage</option>
+            </select>
+          </label>
+          <button type="button" class="btn-ink" id="addBtn">New entry</button>
+        </div>
       </div>
-      <div class="toolbar-right">
-        <label class="sortwrap">Sort
-          <select id="sortSel">
-            <option value="recent">Newest first</option>
-            <option value="oldest">Oldest first</option>
-            <option value="company">Company A–Z</option>
-            <option value="stage">Stage</option>
-          </select>
-        </label>
-        <button type="button" class="btn-ink" id="addBtn">New entry</button>
-      </div>
+
+      <div class="chips" id="chips"></div>
+
+      <section class="ledger" id="ledger">
+        <div class="colhead gridrow" id="colhead">
+          <span></span><span class="ch-entry">Entry</span><span>Status</span><span class="ch-applied">Applied</span><span></span>
+        </div>
+        <div id="list"></div>
+        <div id="emptyBox"></div>
+      </section>
     </div>
 
-    <div class="chips" id="chips"></div>
-
-    <section class="ledger" id="ledger">
-      <div class="colhead gridrow" id="colhead">
-        <span></span><span class="ch-entry">Entry</span><span>Status</span><span class="ch-applied">Applied</span><span></span>
+    <!-- ============ BOARDS TAB ============ -->
+    <div id="boardsTab" hidden>
+      <div class="boards-head">
+        <span class="boards-cap" id="boardsCap">The boards are quiet.</span>
+        <button type="button" class="linklike boards-refresh" id="boardsRefreshBtn"><svg class="ic"><use href="#i-new"/></svg><span>Refresh</span></button>
       </div>
-      <div id="list"></div>
-      <div id="emptyBox"></div>
-    </section>
+
+      <div class="boards-tools">
+        <div class="search">
+          <svg class="ic"><use href="#i-search"/></svg>
+          <input id="boardsSearch" placeholder="Search the boards…">
+        </div>
+        <div class="toolbar-right">
+          <label class="sortwrap">Sort
+            <select id="boardsSort">
+              <option value="new">Newest</option>
+              <option value="company">Company A–Z</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="boards-filters" id="boardsFilters"></div>
+
+      <section class="boards-list">
+        <div id="boardsList"></div>
+        <div class="boards-empty" id="boardsEmpty" hidden></div>
+        <div style="text-align:center;padding:20px 0" id="boardsMore">
+          <button type="button" class="btn-ghost" id="boardsMoreBtn" hidden>Show more</button>
+        </div>
+      </section>
+    </div>
 
     <footer class="foot">
       <span id="footCount"></span>
@@ -486,9 +604,12 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       <label class="field"><span class="flabel">Next step</span><input id="fNext" placeholder="Reply to recruiter"></label>
       <label class="field"><span class="flabel">Next step date</span><input id="fNextDate" type="date"></label>
     </div>
-    <div class="frow2">
-      <label class="field"><span class="flabel">Link</span><input id="fLink" type="url" placeholder="https://…"></label>
-      <span></span>
+    <div class="field">
+      <span class="flabel">Link</span>
+      <div class="linkrow">
+        <input id="fLink" type="url" placeholder="https://…">
+        <button type="button" class="linkopen" id="fLinkOpen" hidden><svg class="ic"><use href="#i-ext"/></svg><span>Open</span></button>
+      </div>
     </div>
     <label class="field"><span class="flabel">Notes</span><textarea id="fNotes" rows="3" placeholder="Who you spoke to, what to remember…"></textarea></label>
     <div class="formerr" id="fErr"></div>
@@ -510,7 +631,7 @@ const ACCOUNTS_KEY = 'ledger.accounts.v1';
 const OLD_USERS_KEY = 'ledger.users.v1';
 const DATA_KEY   = 'ledger.data.v1.';
 const SESSION_KEY = 'ledger.session.v1';
-const BOARDS_KEY = 'ledger.boards.v1';      // cached job listings
+const BOARDS_KEY = 'ledger.boards.v1';
 
 const STATUSES = {
   applied:  {label:'Applied',   color:'var(--c-applied)'},
@@ -529,7 +650,10 @@ let state = { user:null, demo:false };
 let data  = { apps:[] };
 let view  = { openId:null, filter:'all', sort:'recent', query:'' };
 let editingId = null;
-let boards = { listings:[], fetched:0 };   // v2: the job boards
+let boards = { listings:[], fetched:0 };
+
+// boards view state (resets each visit)
+let boardsView = { section:'all', sort:'new', query:'', shown:50 };
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -622,10 +746,6 @@ function seedApps(){
 }
 
 // ---------- v2: the boards ----------
-// listings come from the public SimplifyJobs internship repo
-// (raw.githubusercontent serves it with open CORS). the README
-// embeds its listings in HTML tables, so we parse it with the
-// browser's own DOMParser. results are cached in localStorage.
 const BOARDS_URL = 'https://raw.githubusercontent.com/SimplifyJobs/Summer2027-Internships/dev/README.md';
 const BOARDS_TTL = 6*60*60*1000;   // cache for 6 hours
 
@@ -641,14 +761,33 @@ function boardsCacheGet(){
 }
 function boardsCacheSet(b){ safeSet(BOARDS_KEY, JSON.stringify(b)); }
 
+// the README is markdown with HTML tables embedded. the category
+// headers are markdown (## 💻 Software Engineering Internship Roles),
+// so we walk the file line by line: headings set the current section,
+// table chunks get parsed with DOMParser and attributed to it.
 function parseBoards(md){
-  const doc = new DOMParser().parseFromString(md, 'text/html');
   const out = [];
   let section = '';
   let lastCompany = { name:'', url:'' };
+  let buf = [];
+  let inTable = false;
 
-  // readable text from a cell: <br> becomes ", ", <details> collapses
-  // to its summary ("7 locations" instead of a wall of cities)
+  // headings that aren't categories ("See Full List" etc.) keep
+  // the previous section, so continuation tables land correctly
+  const JUNK = /see full list|back to top|contributors|legend|faq|browse|jump to|internships by|table_start|do not change/i;
+
+  function setSection(text){
+    let name = String(text)
+      .replace(/Internship Roles/i,'')
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{200D}]/gu,'')
+      .replace(/<[^>]+>/g,'')
+      .replace(/[^\w\s&+/-]/g,' ')
+      .replace(/\s+/g,' ')
+      .trim();
+    if(!name || JUNK.test(name)) return;
+    section = name;
+  }
+
   function tdText(td){
     const c = td.cloneNode(true);
     c.querySelectorAll('br').forEach(br=> br.replaceWith(document.createTextNode(', ')));
@@ -667,33 +806,27 @@ function parseBoards(md){
     return u==='d' ? n : u==='w' ? n*7 : (u==='mo'||u==='m') ? n*30 : n/24;
   }
 
-  for(const el of doc.body.querySelectorAll('h2, table')){
-    if(el.tagName === 'H2'){
-      section = el.textContent.replace(/ Internship Roles/i,'')
-        .replace(/[^\w\s&+/-]/g,' ').replace(/\s+/g,' ').trim();
-      lastCompany = { name:'', url:'' };
-      continue;
-    }
-    for(const tr of el.querySelectorAll('tbody tr')){
+  function flush(){
+    if(!buf.length) return;
+    const doc = new DOMParser().parseFromString(buf.join('\n'), 'text/html');
+    buf = [];
+    for(const tr of doc.querySelectorAll('tbody tr')){
       const tds = tr.querySelectorAll('td');
       if(tds.length < 5) continue;
-
       const co = tds[0].querySelector('a');
       let company, companyUrl;
       if(co){
         company = co.textContent.trim();
-        companyUrl = co.href || '';
+        companyUrl = co.getAttribute('href') || '';
         lastCompany = { name:company, url:companyUrl };
       }else{
-        // continuation rows belong to the company above them
         company = lastCompany.name;
         companyUrl = lastCompany.url;
       }
       const role = tdText(tds[1]);
       const location = tdText(tds[2]);
-      // first link in the application cell is the direct posting
       const apply = tds[3].querySelector('a');
-      const link = apply ? (apply.href || '') : '';
+      const link = apply ? (apply.getAttribute('href') || '') : '';
       const age = tdText(tds[4]);
       if(!company || !role || !link) continue;
       out.push({
@@ -701,10 +834,27 @@ function parseBoards(md){
         company, companyUrl,
         role, location, link,
         age, ageDays: ageDays(age),
-        section
+        section: section || 'Other'
       });
     }
   }
+
+  for(const line of md.split('\n')){
+    const t = line.trim();
+    if(!inTable && t.includes('<table')) inTable = true;
+    if(inTable){
+      buf.push(line);
+      if(t.includes('</table>')){ inTable = false; flush(); }
+      continue;
+    }
+    // markdown heading
+    const mh = t.match(/^#{1,6}\s+(.+)/);
+    if(mh){ setSection(mh[1]); continue; }
+    // inline HTML heading
+    const hh = t.match(/^<h[1-4][^>]*>(.*?)<\/h[1-4]>/i);
+    if(hh){ setSection(hh[1]); continue; }
+  }
+  flush();
   return out;
 }
 
@@ -723,6 +873,12 @@ async function boardsRefresh(){
   return { ok:true, count:listings.length };
 }
 
+// a listing is "already tracked" if the ledger has an entry
+// pointing at the same posting link
+function isTracked(listing){
+  return data.apps.some(a=> a.link && a.link === listing.link);
+}
+
 // ---------- toast ----------
 let toastT;
 function toast(msg){
@@ -733,7 +889,7 @@ function toast(msg){
   toastT = setTimeout(()=>el.classList.remove('show'), 2600);
 }
 
-// ---------- rendering ----------
+// ---------- ledger rendering ----------
 function fmtDate(iso){
   const d = new Date(iso+'T00:00:00');
   return MON[d.getMonth()]+' '+d.getDate()+ord(d.getDate());
@@ -913,6 +1069,76 @@ function render(){
   renderFooter();
 }
 
+// ---------- boards rendering ----------
+function renderBoardsFilters(){
+  const counts = new Map();
+  boards.listings.forEach(l=>{
+    counts.set(l.section, (counts.get(l.section)||0)+1);
+  });
+  const chip = (id,label,n)=>
+    '<button type="button" data-bfilter="'+esc(id)+'" class="'+(boardsView.section===id?'on':'')+'">'+
+    esc(label)+'<span class="n">'+n+'</span></button>';
+  $('boardsFilters').innerHTML =
+    chip('all','All',boards.listings.length) +
+    [...counts.entries()].map(([s,n])=>chip(s,s,n)).join('');
+}
+
+function renderBoards(){
+  renderBoardsFilters();
+
+  const total = boards.listings.length;
+  const pulled = boards.fetched ? ', pulled '+fmtDate(new Date(boards.fetched).toISOString().slice(0,10)) : '';
+  if(!total){
+    $('boardsCap').innerHTML = 'The boards are quiet.';
+    $('boardsList').innerHTML = '';
+    $('boardsEmpty').hidden = false;
+    $('boardsEmpty').innerHTML =
+      '<h3>No listings yet.</h3>'+
+      '<p>Hit refresh to pull the latest internship listings.</p>';
+    $('boardsMoreBtn').hidden = true;
+    return;
+  }
+
+  $('boardsEmpty').hidden = true;
+  let list = [...boards.listings];
+  if(boardsView.section !== 'all') list = list.filter(l=>l.section === boardsView.section);
+  const q = boardsView.query.trim().toLowerCase();
+  if(q) list = list.filter(l=>[l.role,l.company,l.location,l.section].some(v=>v && v.toLowerCase().includes(q)));
+  if(boardsView.sort === 'company') list.sort((a,b)=> a.company.localeCompare(b.company));
+  else list.sort((a,b)=> (a.ageDays-b.ageDays) || a.company.localeCompare(b.company));
+
+  const shown = Math.min(boardsView.shown, list.length);
+  $('boardsCap').innerHTML =
+    '<b>'+w(total)+'</b> listings on the boards'+pulled+
+    (list.length < total ? ', '+w(list.length)+' here' : '')+
+    ', showing '+w(shown)+'.';
+
+  $('boardsList').innerHTML = list.slice(0, boardsView.shown).map(browHTML).join('');
+  $('boardsMoreBtn').hidden = list.length <= boardsView.shown;
+}
+
+function browHTML(l){
+  const tracked = isTracked(l);
+  const q = boardsView.query.trim();
+  const sec = l.section !== boardsView.section ? '<span class="co-dim">'+mark(l.section,q)+'</span>' : '';
+  return '<div class="brow'+(tracked?' is-added':'')+'">'+
+    '<div class="bco">'+mark(l.company,q)+sec+'</div>'+
+    '<div class="brole">'+mark(l.role,q)+'</div>'+
+    '<div class="bloc">'+mark(l.location,q)+'</div>'+
+    '<div class="bage">'+esc(l.age)+'</div>'+
+    '<div class="bgo">'+
+      (tracked
+        ? '<button type="button" disabled>'+icon('check')+'<span>In ledger</span></button>'
+        : '<button type="button" data-apply="'+esc(l.link)+'"><span>Apply</span></button>')+
+    '</div>'+
+  '</div>';
+}
+
+function renderAll(){
+  render();
+  renderBoards();
+}
+
 function enterApp(){
   state.demo = false;
   $('demoBar').hidden = true;
@@ -928,7 +1154,7 @@ function enterApp(){
   $('mhUser').textContent = state.user;
   $('authView').hidden = true;
   $('appView').hidden = false;
-  render();
+  renderAll();
 }
 
 // ---------- preview mode ----------
@@ -942,7 +1168,7 @@ function enterDemo(){
   $('appView').hidden = false;
   $('demoBar').hidden = false;
   $('mhUser').textContent = 'Preview';
-  render();
+  renderAll();
 }
 
 function exitDemo(){
@@ -957,6 +1183,17 @@ function exitDemo(){
 
  $('demoExit').addEventListener('click', exitDemo);
  $('authPreview').addEventListener('click', enterDemo);
+
+// ---------- tabs ----------
+function setTab(tab){
+  const ledger = tab === 'ledger';
+  $('tabLedger').classList.toggle('on', ledger);
+  $('tabBoards').classList.toggle('on', !ledger);
+  $('ledgerTab').hidden = !ledger;
+  $('boardsTab').hidden = ledger;
+}
+ $('tabLedger').addEventListener('click', ()=>setTab('ledger'));
+ $('tabBoards').addEventListener('click', ()=>setTab('boards'));
 
 // ---------- row interactions ----------
 function toggleRow(id){
@@ -1012,6 +1249,69 @@ function handleDelete(btn, id){
   if(e.target.closest('.detail')) return;
   toggleRow(id);
 });
+
+// ---------- boards interactions ----------
+// Apply pulls up the entry form prefilled; the posting itself opens
+// from the Open button next to the Link field, on the user's clock
+ $('boardsList').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-apply]');
+  if(!btn) return;
+  const link = btn.dataset.apply;
+  const listing = boards.listings.find(l=>l.link === link);
+  if(!listing) return;
+  openModal(null, {
+    role: listing.role,
+    company: listing.company,
+    location: listing.location,
+    source: 'The Boards',
+    link: listing.link
+  });
+});
+
+ $('boardsFilters').addEventListener('click', e=>{
+  const b = e.target.closest('[data-bfilter]');
+  if(!b) return;
+  boardsView.section = b.dataset.bfilter;
+  boardsView.shown = 50;
+  renderBoards();
+});
+
+ $('boardsSearch').addEventListener('input', e=>{
+  boardsView.query = e.target.value;
+  boardsView.shown = 50;
+  renderBoards();
+});
+
+ $('boardsSort').addEventListener('change', e=>{
+  boardsView.sort = e.target.value;
+  renderBoards();
+});
+
+ $('boardsMoreBtn').addEventListener('click', ()=>{
+  boardsView.shown += 50;
+  renderBoards();
+});
+
+ $('boardsRefreshBtn').addEventListener('click', async ()=>{
+  const btn = $('boardsRefreshBtn');
+  btn.disabled = true;
+  const r = await boardsRefresh();
+  btn.disabled = false;
+  if(r.ok){
+    boardsView.shown = 50;
+    renderBoards();
+    toast('Boards refreshed: '+r.count+' listings.');
+  }else{
+    toast("Couldn't reach the boards.");
+  }
+});
+
+// auto-refresh a stale cache (older than TTL) on load
+async function boardsMaybeAutoRefresh(){
+  if(boards.listings.length && (Date.now() - boards.fetched) < BOARDS_TTL) return;
+  const r = await boardsRefresh();
+  if(r.ok) renderBoards();
+}
 
 // ---------- search / filter / sort ----------
  $('searchInp').addEventListener('input', e=>{ view.query = e.target.value; render(); });
@@ -1119,6 +1419,17 @@ function doImport(text){
 // ---------- modal (new + edit) ----------
 const overlay = $('overlay'), entryForm = $('entryForm');
 
+// show the Open button only when the link field holds a real URL
+function syncLinkOpen(){
+  const v = $('fLink').value.trim();
+  $('fLinkOpen').hidden = !/^https?:\/\//i.test(v);
+}
+ $('fLink').addEventListener('input', syncLinkOpen);
+ $('fLinkOpen').addEventListener('click', ()=>{
+  const v = $('fLink').value.trim();
+  if(/^https?:\/\//i.test(v)) window.open(v, '_blank', 'noopener');
+});
+
 function openModal(id, prefill){
   editingId = id || null;
   $('fErr').textContent = '';
@@ -1139,6 +1450,7 @@ function openModal(id, prefill){
   $('fNextDate').value = a ? (a.nextDate||'') : '';
   $('fNotes').value = a ? (a.notes||'') : (p.notes || '');
   $('fLink').value = a ? (a.link||'') : (p.link || '');
+  syncLinkOpen();
   $('formTitle').textContent = a ? 'Edit entry' : 'New entry';
   $('fSubmit').textContent = a ? 'Save changes' : 'Add entry';
   overlay.hidden = false;
@@ -1201,6 +1513,8 @@ entryForm.addEventListener('submit', e=>{
     render(); closeModal();
     if(ok) toast('Entry added');
   }
+  // boards track what's in the ledger, re-render them
+  if(!$('boardsTab').hidden) renderBoards();
 });
 
 document.addEventListener('keydown', e=>{
@@ -1211,8 +1525,9 @@ document.addEventListener('keydown', e=>{
     const typing = e.target.closest && e.target.closest('input,textarea,select');
     if(!typing){
       e.preventDefault();
-      $('searchInp').focus();
-      $('searchInp').select();
+      const target = $('boardsTab').hidden ? $('searchInp') : $('boardsSearch');
+      target.focus();
+      target.select();
     }
   }
 });
@@ -1301,6 +1616,11 @@ function signIn(name){
 // ---------- cross-tab sync ----------
 window.addEventListener('storage', e=>{
   if(e.key === null && !$('appView').hidden){ showAuth(); return; }
+  if(e.key === BOARDS_KEY){
+    boards = boardsCacheGet();
+    if(!$('boardsTab').hidden) renderBoards();
+    return;
+  }
   if(state.user && !state.demo && e.key === DATA_KEY+state.user){
     data = loadData(state.user);
     if(editingId && !data.apps.some(a=>a.id===editingId)){
@@ -1308,7 +1628,7 @@ window.addEventListener('storage', e=>{
       toast('That entry was removed elsewhere.');
     }
     if(view.openId && !data.apps.some(a=>a.id===view.openId)) view.openId = null;
-    render();
+    renderAll();
     return;
   }
   if(e.key === SESSION_KEY && e.newValue !== state.user && !$('appView').hidden){
@@ -1327,6 +1647,7 @@ window.addEventListener('storage', e=>{
     if(s && accountsGet().includes(s)){
       state.user = s;
       enterApp();
+      boardsMaybeAutoRefresh();
       return;
     }
   }catch{}
