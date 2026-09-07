@@ -55,14 +55,8 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 }
 .auth-field input:focus{outline:none;border-bottom:2px solid var(--ink)}
 .auth-field input::placeholder{color:var(--ink-35);font-weight:400}
-.acc-chips{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-bottom:18px}
-.acc-chips span{font:500 10px var(--mono);letter-spacing:.2em;color:var(--ink-55);text-transform:uppercase}
-.acc-chips button{
-  font:500 11px var(--mono);letter-spacing:.06em;padding:7px 12px;
-  border:1px solid var(--line-2);border-radius:3px;color:var(--ink-70);
-  cursor:pointer;background:none;
-}
-.acc-chips button:hover{border-color:var(--ink);color:var(--ink)}
+.acc-chips{display:block;margin:2px 0 22px}
+.acc-chips>span{display:block;font:500 12px var(--mono);letter-spacing:.2em;color:var(--ink-55);text-transform:uppercase;margin-bottom:8px}
 .seed{display:flex;align-items:center;gap:9px;font:500 11px var(--mono);letter-spacing:.1em;color:var(--ink-70);margin-bottom:18px;cursor:pointer}
 .seed input{accent-color:var(--accent);width:14px;height:14px}
 .auth-err{min-height:22px;font:400 13px var(--sans);color:var(--accent);margin-bottom:6px}
@@ -85,6 +79,49 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 }
 .linklike:hover{color:var(--ink)}
 
+/* saved ledgers: one quiet row per account */
+.chipwrap{display:flex;align-items:center;gap:8px;width:100%;padding:5px 0;border-bottom:1px solid var(--line)}
+.chipwrap button[data-name]{
+  flex:1;text-align:left;font:500 14px var(--mono);letter-spacing:.05em;padding:8px 4px;
+  border:0;color:var(--ink-70);cursor:pointer;background:none;
+}
+.chipwrap button[data-name]:hover{color:var(--ink);padding-left:8px}
+.chipwrap button[data-name].on-chip{color:var(--accent)}
+.chipwrap .chip-e{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:none;margin-left:auto;width:26px;height:26px;border:1px solid var(--line-2);border-radius:3px;
+  color:var(--ink-35);cursor:pointer;background:none;
+  transition:color .15s,border-color .15s;
+}
+.chipwrap .chip-e:hover{color:var(--ink);border-color:var(--ink)}
+
+/* ledger manage popover: rename / delete from the pencil */
+.acc-pop{
+  position:fixed;z-index:70;
+  background:var(--paper-2);border:1px solid var(--ink);border-radius:5px;
+  box-shadow:0 14px 40px rgba(20,16,8,.28);
+  min-width:230px;padding:8px;
+}
+.acc-pop .poprow{
+  display:flex;align-items:center;gap:9px;width:100%;
+  background:none;border:0;cursor:pointer;border-radius:3px;
+  font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-70);padding:9px 10px;text-align:left;
+}
+.acc-pop .poprow:hover{background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink)}
+.acc-pop .poprow.danger:hover{color:var(--accent)}
+.popdiv{border-top:1px solid var(--line);margin:6px 0}
+.pop-label{font:500 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-55);padding:4px 10px 6px}
+.pop-input{
+  width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-2);
+  padding:7px 10px;font:500 15px var(--sans);border-radius:0;
+}
+.pop-input:focus{outline:none;border-bottom:2px solid var(--ink)}
+.pop-actions{display:flex;gap:8px;justify-content:flex-end;padding:8px 6px 2px}
+.pop-actions .btn-ink{padding:8px 14px}
+.pop-actions .btn-ghost{padding:8px 12px}
+.pop-warn{font:italic 400 13px/1.5 var(--serif);color:var(--accent);padding:6px 10px 2px}
+
 /* ---------- app ---------- */
 .masthead{
   display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px 24px;
@@ -98,12 +135,15 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .mh-out{background:none;border:0;cursor:pointer;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-55)}
 .mh-out:hover{color:var(--accent)}
 
-/* section tabs */
-.tabs{display:flex;gap:0;border-bottom:2px solid var(--ink);margin-top:22px}
+/* section tabs: 50/50 split, centered text */
+.tabs{
+  display:grid;grid-template-columns:1fr 1fr;
+  border-bottom:2px solid var(--ink);margin-top:22px;
+}
 .tabs button{
   background:none;border:0;cursor:pointer;
   font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink-55);padding:12px 22px 10px;
+  color:var(--ink-55);padding:12px 10px 10px;text-align:center;
   border-bottom:3px solid transparent;margin-bottom:-2px;
 }
 .tabs button:hover{color:var(--ink)}
@@ -256,7 +296,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   100%{opacity:0;transform:translate(-50%,-50%) rotate(-11deg) scale(1)}
 }
 
-/* ---------- the boards (classifieds) ---------- */
+/* ---------- find jobs (classifieds) ---------- */
 .boards-head{
   display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px 20px;
   padding:26px 0 6px;
@@ -273,7 +313,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 }
 .sug-note b{font-weight:500;color:var(--ink)}
 .boards-tools{display:flex;align-items:center;gap:22px;padding:14px 0 12px;border-top:1px solid var(--line);flex-wrap:wrap}
-/* category pills in a 3x2 grid */
+/* category pills in a grid */
 .boards-filters{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -300,7 +340,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .boards-list{border-top:2px solid var(--ink)}
 .brow{
   display:grid;
-  grid-template-columns:minmax(0,1.2fr) minmax(0,2fr) 150px 50px auto;
+  grid-template-columns:minmax(0,1.2fr) minmax(0,2fr) 170px 50px auto;
   column-gap:18px;
   align-items:baseline;
   padding:13px 0;
@@ -312,20 +352,40 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
 .brole{font:400 14px/1.4 var(--sans);color:var(--ink-70)}
 .bloc{font:400 11.5px var(--mono);color:var(--ink-55);overflow-wrap:anywhere}
 .bage{font:400 11.5px var(--mono);color:var(--ink-55);text-align:right;white-space:nowrap}
+/* expandable "4 locations" cell */
+.locx{
+  background:none;border:0;cursor:pointer;padding:0;
+  font:400 11.5px var(--mono);color:var(--ink-55);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.locx:hover{color:var(--accent)}
+.locx svg{transition:transform .2s}
+.locx.open svg{transform:rotate(180deg)}
+.brow-locs{
+  grid-column:1/-1;
+  font:400 11.5px/1.8 var(--mono);color:var(--ink-55);
+  padding:2px 0 8px 18px;
+  border-left:1px solid var(--line-2);
+}
 .bgo{display:flex;justify-content:flex-end}
+/* Apply / In-ledger share one width so nothing shifts when you apply */
 .bgo button{
   background:none;border:1px solid var(--line-2);border-radius:3px;cursor:pointer;
   font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;
   color:var(--ink-70);padding:6px 11px;white-space:nowrap;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-width:106px;
 }
 .bgo button:hover{border-color:var(--ink);color:var(--ink)}
 .brow.is-added{opacity:.55}
-.brow.is-added .bgo button{border-color:var(--c-offer);color:var(--c-offer);cursor:default;display:inline-flex;align-items:center;gap:6px}
+.brow.is-added .bgo button{
+  border-color:var(--c-offer);color:var(--c-offer);cursor:default;
+}
 .boards-empty{padding:70px 20px;text-align:center}
 .boards-empty h3{font:italic 500 27px var(--serif)}
 .boards-empty p{color:var(--ink-55);margin:12px auto 0;max-width:44ch}
 
-/* floating jump button: bottom-right, boards tab only */
+/* floating jump button: bottom-right, jobs tab only */
 .jump{
   position:fixed;right:26px;bottom:26px;z-index:40;
   display:inline-flex;align-items:center;gap:8px;
@@ -511,10 +571,10 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       </div>
     </header>
 
-    <!-- section tabs -->
+    <!-- section tabs: half / half, centered -->
     <nav class="tabs">
       <button type="button" id="tabLedger" class="on">Ledger</button>
-      <button type="button" id="tabBoards">The Boards</button>
+      <button type="button" id="tabBoards">Find Jobs</button>
     </nav>
 
     <!-- ============ LEDGER TAB ============ -->
@@ -566,7 +626,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       </section>
     </div>
 
-    <!-- ============ BOARDS TAB ============ -->
+    <!-- ============ FIND JOBS TAB ============ -->
     <div id="boardsTab" hidden>
       <div class="boards-head">
         <span class="boards-cap" id="boardsCap">The boards are quiet.</span>
@@ -578,7 +638,7 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
       <div class="boards-tools">
         <div class="search">
           <svg class="ic"><use href="#i-search"/></svg>
-          <input id="boardsSearch" placeholder="Search the boards…">
+          <input id="boardsSearch" placeholder="Search jobs…">
         </div>
         <div class="toolbar-right">
           <label class="sortwrap">Sort
@@ -613,10 +673,13 @@ mark{background:color-mix(in srgb,var(--accent) 24%,transparent);color:inherit;b
   </div>
 </div>
 
-<!-- floating jump button, boards tab only -->
+<!-- floating jump button, jobs tab only -->
 <button type="button" class="jump" id="jumpBtn" hidden>
   <svg class="ic"><use href="#i-chev"/></svg><span id="jumpLabel">Bottom</span>
 </button>
+
+<!-- ledger manage popover -->
+<div class="acc-pop" id="accPop" hidden></div>
 
 <!-- entry modal (new + edit) -->
 <div id="overlay" class="overlay" hidden>
@@ -698,8 +761,8 @@ let view  = { openId:null, filter:'all', sort:'recent', query:'' };
 let editingId = null;
 let boards = { listings:[], fetched:0 };
 
-// boards view state (resets each visit)
-let boardsView = { section:'all', sort:'new', query:'', shown:50 };
+// jobs view state (resets each visit)
+let boardsView = { section:'all', sort:'new', query:'', shown:50, openLocs:new Set() };
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -841,6 +904,27 @@ function parseBoards(md){
     return c.textContent.replace(/\s+/g,' ').trim().replace(/(^(,\s*)?)|((,\s*)?$)/g,'').replace(/,\s*,/g,',');
   }
 
+  // location cell: <details> collapses to "4 locations" but we keep
+  // the full list so the row can expand it
+  function tdLocation(td){
+    const c = td.cloneNode(true);
+    const split = html => html.split(/<br\s*\/?>/i)
+      .map(p=>p.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim())
+      .filter(Boolean);
+    const det = c.querySelector('details');
+    if(det){
+      const s = det.querySelector('summary');
+      const label = s ? s.textContent.replace(/\s+/g,' ').trim() : '';
+      const d = det.cloneNode(true);
+      const sm = d.querySelector('summary');
+      if(sm) sm.remove();
+      const all = split(d.innerHTML);
+      return { short: label || (all.length+' locations'), all, collapsed: all.length > 0 };
+    }
+    const all = split(c.innerHTML);
+    return { short: all.join(', '), all, collapsed: false };
+  }
+
   // "2d" / "3w" -> numeric days, for sorting
   function ageDays(age){
     const m = age.match(/^(\d+)\s*(d|w|mo|m|h)/i);
@@ -867,7 +951,7 @@ function parseBoards(md){
         companyUrl = lastCompany.url;
       }
       const role = tdText(tds[1]);
-      const location = tdText(tds[2]);
+      const loc = tdLocation(tds[2]);
       const apply = tds[3].querySelector('a');
       const link = apply ? (apply.getAttribute('href') || '') : '';
       const age = tdText(tds[4]);
@@ -876,7 +960,9 @@ function parseBoards(md){
         id: 'b_'+out.length,
         pos: out.length,          // repo position, for "repo order" sort
         company, companyUrl,
-        role, location, link,
+        role, location: loc.short,
+        locations: loc.collapsed ? loc.all : null,
+        link,
         age, ageDays: ageDays(age),
         section: section || 'Other'
       });
@@ -923,8 +1009,6 @@ function isTracked(listing){
 
 // ---------- suggestions ----------
 // taste profile from your own ledger: terms weighted by outcome.
-// interviews/offers count as strong interest, rejections count
-// against, applied is a weak positive.
 function buildProfile(){
   const weight = {applied:0.6, interview:1.6, offer:2.2, rejected:-0.8};
   const tf = new Map();
@@ -955,7 +1039,6 @@ function suggestScore(listing, profile){
   for(const tok of tokens){
     score += profile.get(tok) || 0;
   }
-  // slight recency boost so ties break toward fresh postings
   return score - (listing.ageDays ?? 9999) * 0.001;
 }
 
@@ -1158,7 +1241,7 @@ function render(){
   renderFooter();
 }
 
-// ---------- boards rendering ----------
+// ---------- jobs rendering ----------
 function renderBoardsFilters(){
   const counts = new Map();
   boards.listings.forEach(l=>{
@@ -1166,7 +1249,7 @@ function renderBoardsFilters(){
   });
   const chip = (id,label,n)=>
     '<button type="button" data-bfilter="'+esc(id)+'" class="'+(boardsView.section===id?'on':'')+'">'+
-    '<span class="lbl">'+esc(label)+'</span><span class="n">'+n+'</span></button>';
+    esc(label)+'<span class="n">'+n+'</span></button>';
   $('boardsFilters').innerHTML =
     chip('all','All',boards.listings.length) +
     [...counts.entries()].map(([s,n])=>chip(s,s,n)).join('');
@@ -1212,20 +1295,29 @@ function renderBoards(){
     '<b>'+w(total)+'</b> listings on the boards'+pulled+
     (list.length < total ? ', '+w(list.length)+' here' : '')+
     ', showing '+w(shown)+'.';
-
-  // the editorial line: why these jobs, in plain words
+   // the editorial line: why these jobs, in plain words
   const note = $('sugNote');
-  if(boardsView.sort === 'suggested' && profile && list.length){
-    const terms = topTerms(profile, 3);
-    const total = data.apps.length;
-    const strong = data.apps.filter(a=> a.status==='interview'||a.status==='offer').length;
-    note.hidden = false;
-    note.innerHTML =
-      'These '+w(list.length)+' listings borrow language from the ledger: '+
-      (terms.length ? 'the words <b>'+terms.map(esc).join('</b>, <b>')+'</b> appear in roles you have applied to'+
-      (strong ? ', and the ones that went furthest count heaviest' : '')+'.' :
-      'terms drawn from the entries you are already tracking.')+
-      ' Log more applications and the list sharpens.';
+  if(boardsView.sort === 'suggested'){
+    if(!profile){
+      note.hidden = false;
+      note.textContent = 'Suggestions switch on once your book holds three entries — log a few applications and this view starts ranking the boards for you.';
+    }else if(!list.length){
+      note.hidden = false;
+      note.textContent = 'Nothing on the boards matches your history yet. Log more applications and the list sharpens.';
+    }else{
+      const terms = topTerms(profile, 3);
+      const strong = data.apps.filter(a=> a.status==='interview'||a.status==='offer').length;
+      note.hidden = false;
+      note.innerHTML =
+        (list.length === 1 ? 'This listing borrows' : 'These '+w(list.length)+' listings borrow')+
+        ' language from your own book: '+
+        (terms.length
+          ? 'the word'+(terms.length>1?'s':'')+' <b>'+terms.map(esc).join('</b>, <b>')+'</b> '+
+            (terms.length>1?'appear':'appears')+' in roles you have applied to'+
+            (strong ? ', and the ones that went furthest count heaviest' : '')+'.'
+          : 'terms drawn from the entries you are already tracking.')+
+        ' Log more applications and the list sharpens.';
+    }
   }else{
     note.hidden = true;
   }
@@ -1239,16 +1331,28 @@ function browHTML(l){
   const tracked = isTracked(l);
   const q = boardsView.query.trim();
   const sec = l.section !== boardsView.section ? '<span class="co-dim">'+mark(l.section,q)+'</span>' : '';
+  const locOpen = l.locations && boardsView.openLocs.has(l.id);
+
+  // location: plain text, or an expand toggle when the repo collapsed it
+  let locCell;
+  if(l.locations){
+    locCell = '<button type="button" class="locx'+(locOpen?' open':'')+'" data-locx="'+esc(l.id)+'">'+
+      esc(l.location)+icon('chev')+'</button>';
+  }else{
+    locCell = mark(l.location,q);
+  }
+
   return '<div class="brow'+(tracked?' is-added':'')+'">'+
     '<div class="bco">'+mark(l.company,q)+sec+'</div>'+
     '<div class="brole">'+mark(l.role,q)+'</div>'+
-    '<div class="bloc">'+mark(l.location,q)+'</div>'+
+    '<div class="bloc">'+locCell+'</div>'+
     '<div class="bage">'+esc(l.age)+'</div>'+
     '<div class="bgo">'+
       (tracked
         ? '<button type="button" disabled>'+icon('check')+'<span>In ledger</span></button>'
         : '<button type="button" data-apply="'+esc(l.link)+'"><span>Apply</span></button>')+
     '</div>'+
+    (locOpen ? '<div class="brow-locs">'+l.locations.map(esc).join(' · ')+'</div>' : '')+
   '</div>';
 }
 
@@ -1315,8 +1419,6 @@ function setTab(tab){
  $('tabBoards').addEventListener('click', ()=>setTab('boards'));
 
 // ---------- floating jump button ----------
-// shows on the boards tab after scrolling; jumps to the last rendered
-// listing, then flips to "top" once you're near the bottom
 const jumpBtn = $('jumpBtn');
 function syncJump(){
   const onBoards = !$('boardsTab').hidden && !$('appView').hidden;
@@ -1343,7 +1445,6 @@ jumpBtn.addEventListener('click', ()=>{
     window.scrollTo({top:0, behavior:'smooth'});
     return;
   }
-  // land on the "show more" button so the next batch is right there
   const rows = $('boardsList').children;
   const target = !$('boardsMoreBtn').hidden ? $('boardsMoreBtn') : (rows.length ? rows[rows.length-1] : null);
   if(target) target.scrollIntoView({behavior:'smooth', block:'end'});
@@ -1404,10 +1505,20 @@ function handleDelete(btn, id){
   toggleRow(id);
 });
 
-// ---------- boards interactions ----------
-// Apply pulls up the entry form prefilled; the posting itself opens
-// from the Open button next to the Link field, on the user's clock
+// ---------- jobs interactions ----------
  $('boardsList').addEventListener('click', e=>{
+  // expand/collapse the "N locations" cells
+  const locx = e.target.closest('[data-locx]');
+  if(locx){
+    e.stopPropagation();
+    const id = locx.dataset.locx;
+    if(boardsView.openLocs.has(id)) boardsView.openLocs.delete(id);
+    else boardsView.openLocs.add(id);
+    renderBoards();
+    return;
+  }
+  // Apply pulls up the entry form prefilled; the posting itself opens
+  // from the Open button next to the Link field, on the user's clock
   const btn = e.target.closest('button[data-apply]');
   if(!btn) return;
   const link = btn.dataset.apply;
@@ -1416,7 +1527,7 @@ function handleDelete(btn, id){
   openModal(null, {
     role: listing.role,
     company: listing.company,
-    location: listing.location,
+    location: listing.locations ? listing.locations[0] : listing.location,
     source: 'The Boards',
     link: listing.link
   });
@@ -1454,6 +1565,7 @@ function handleDelete(btn, id){
   btn.disabled = false;
   if(r.ok){
     boardsView.shown = 50;
+    boardsView.openLocs.clear();
     renderBoards();
     toast('Boards refreshed: '+r.count+' listings.');
   }else{
@@ -1668,7 +1780,7 @@ entryForm.addEventListener('submit', e=>{
     render(); closeModal();
     if(ok) toast('Entry added');
   }
-  // boards track what's in the ledger, re-render them
+  // the job list tracks what's in the ledger, re-render it
   if(!$('boardsTab').hidden) renderBoards();
 });
 
@@ -1696,7 +1808,11 @@ function renderAccountChips(){
   if(!accs.length){ box.hidden = true; box.innerHTML=''; return; }
   box.hidden = false;
   box.innerHTML = '<span>or open</span>' +
-    accs.map(a=>'<button type="button" data-name="'+esc(a)+'">'+esc(a)+'</button>').join('');
+    accs.map(a=>
+      '<span class="chipwrap">'+
+        '<button type="button" data-name="'+esc(a)+'"'+(a===state.user?' class="on-chip"':'')+'>'+esc(a)+'</button>'+
+        '<button type="button" class="chip-e" data-manage="'+esc(a)+'" title="Rename or delete">'+icon('pencil')+'</button>'+
+      '</span>').join('');
 }
 
 function refreshAuth(){
@@ -1719,12 +1835,6 @@ function showAuth(){
 }
 
  $('authUser').addEventListener('input', refreshAuth);
-
- $('accChips').addEventListener('click', e=>{
-  const b = e.target.closest('button[data-name]');
-  if(!b) return;
-  signIn(b.dataset.name);
-});
 
 function signIn(name){
   safeSet(SESSION_KEY, name);
@@ -1766,6 +1876,133 @@ function signIn(name){
   if(state.demo){ exitDemo(); return; }
   try{ localStorage.removeItem(SESSION_KEY); }catch{}
   showAuth();
+});
+
+// ---------- ledger manage popover ----------
+let popTarget = null;
+
+function closeAccPop(){
+  const pop = $('accPop');
+  pop.hidden = true;
+  pop.innerHTML = '';
+  popTarget = null;
+}
+
+function positionAccPop(btn){
+  const pop = $('accPop');
+  pop.hidden = false;
+  const r = btn.getBoundingClientRect();
+  pop.style.left = Math.max(12, Math.min(r.left, window.innerWidth - pop.offsetWidth - 12))+'px';
+  pop.style.top = Math.min(r.bottom + 6, window.innerHeight - pop.offsetHeight - 12)+'px';
+}
+
+function openAccPop(btn, name){
+  closeAccPop();
+  popTarget = name;
+  const pop = $('accPop');
+  pop.innerHTML =
+    '<button type="button" class="poprow act-pop-rename">'+icon('pencil')+'<span>Rename</span></button>'+
+    '<div class="popdiv"></div>'+
+    '<button type="button" class="poprow danger act-pop-delete">'+icon('trash')+'<span>Delete ledger</span></button>';
+  positionAccPop(btn);
+  pop.querySelector('.act-pop-rename').focus();
+}
+
+function accPopRenameState(){
+  const pop = $('accPop');
+  pop.innerHTML =
+    '<div class="pop-label">Rename to</div>'+
+    '<input class="pop-input" id="popRenameInp" maxlength="24" value="'+esc(popTarget)+'">'+
+    '<div class="pop-warn" id="popWarn" hidden></div>'+
+    '<div class="pop-actions">'+
+      '<button type="button" class="btn-ghost" id="popCancel">Cancel</button>'+
+      '<button type="button" class="btn-ink" id="popSave">Save</button>'+
+    '</div>';
+  const inp = $('popRenameInp');
+  inp.focus(); inp.select();
+  inp.addEventListener('keydown', e=>{
+    if(e.key === 'Enter') doRename();
+    if(e.key === 'Escape') closeAccPop();
+  });
+  $('popCancel').addEventListener('click', closeAccPop);
+  $('popSave').addEventListener('click', doRename);
+}
+
+function doRename(){
+  const oldName = popTarget;
+  const fresh = normName($('popRenameInp').value);
+  if(!fresh || fresh === oldName){ closeAccPop(); return; }
+  const accounts = accountsGet();
+  if(accounts.includes(fresh)){
+    $('popWarn').hidden = false;
+    $('popWarn').textContent = 'That name is already kept here.';
+    return;
+  }
+  // move the data to the new key, drop the old one
+  const raw = localStorage.getItem(DATA_KEY+oldName);
+  if(raw) safeSet(DATA_KEY+fresh, raw);
+  try{ localStorage.removeItem(DATA_KEY+oldName); }catch{}
+  accounts[accounts.indexOf(oldName)] = fresh;
+  accountsSet(accounts);
+  if(state.user === oldName){
+    state.user = fresh;
+    safeSet(SESSION_KEY, fresh);
+    $('mhUser').textContent = fresh;
+  }
+  closeAccPop();
+  refreshAuth();
+  toast('Ledger renamed to '+fresh+'.');
+}
+
+function accPopDeleteState(){
+  const pop = $('accPop');
+  pop.innerHTML =
+    '<div class="pop-warn" style="padding-top:10px">Delete "'+esc(popTarget)+'" and all its entries? This can\'t be undone.</div>'+
+    '<div class="pop-actions">'+
+      '<button type="button" class="btn-ghost" id="popCancel">Cancel</button>'+
+      '<button type="button" class="btn-ink" id="popConfirmDel" style="background:var(--accent)">Delete</button>'+
+    '</div>';
+  $('popCancel').addEventListener('click', closeAccPop);
+  $('popConfirmDel').addEventListener('click', doDelete);
+}
+
+function doDelete(){
+  const name = popTarget;
+  const accounts = accountsGet().filter(a=>a !== name);
+  accountsSet(accounts);
+  try{ localStorage.removeItem(DATA_KEY+name); }catch{}
+  try{ if(localStorage.getItem(SESSION_KEY) === name) localStorage.removeItem(SESSION_KEY); }catch{}
+  closeAccPop();
+  if(state.user === name) showAuth();
+  else refreshAuth();
+  toast('Ledger deleted.');
+}
+
+ $('accChips').addEventListener('click', e=>{
+  const open = e.target.closest('button[data-name]');
+  if(open){ closeAccPop(); signIn(open.dataset.name); return; }
+  const manage = e.target.closest('button[data-manage]');
+  if(manage){
+    e.stopPropagation();
+    openAccPop(manage, manage.dataset.manage);
+  }
+});
+
+// clicks inside the popover never count as "outside"
+ $('accPop').addEventListener('click', e=>{
+  e.stopPropagation();
+  if(e.target.closest('.act-pop-rename')){ accPopRenameState(); return; }
+  if(e.target.closest('.act-pop-delete')){ accPopDeleteState(); return; }
+});
+
+// click anywhere else closes it
+document.addEventListener('click', e=>{
+  if(!$('accPop').hidden && !e.target.closest('#accPop') && !e.target.closest('[data-manage]')){
+    closeAccPop();
+  }
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && !$('accPop').hidden) closeAccPop();
 });
 
 // ---------- cross-tab sync ----------
