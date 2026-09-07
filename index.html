@@ -1006,17 +1006,23 @@ function isTracked(listing){
 }
 
 // ---------- suggestions ----------
-// taste profile from your own ledger: terms weighted by outcome.
+// three separate profiles: what a word IS matters more than that it matched.
+// function words from your role titles are the real signal, companies are a
+// mild preference, locations are background. matching on "chicago" never
+// told anyone the job was right for them.
 function buildProfile(){
   const weight = {applied:0.6, interview:1.6, offer:2.2, rejected:-0.8};
-  const tf = new Map();
+  const bump = (tf, text, a)=>{
+    for(const tok of tokenize(text)) tf.set(tok, (tf.get(tok)||0) + (weight[a.status] ?? 0.6));
+  };
+  const p = { role:new Map(), company:new Map(), location:new Map(), section:new Map() };
   for(const a of data.apps){
-    const text = (a.role+' '+a.company+' '+a.location).toLowerCase();
-    for(const tok of tokenize(text)){
-      tf.set(tok, (tf.get(tok)||0) + (weight[a.status] ?? 0.6));
-    }
+    bump(p.role, a.role, a);
+    bump(p.company, a.company, a);
+    if(a.location) bump(p.location, a.location, a);
+    if(a.section)  p.section.set(a.section, (p.section.get(a.section)||0) + (weight[a.status] ?? 0.6));
   }
-  return tf;
+  return p;
 }
 
 function tokenize(s){
@@ -1031,18 +1037,27 @@ const STOPWORDS = new Set(['the','and','for','with','intern','internship','summe
   'engineer','engineering','software','developer','development']);
 
 function suggestScore(listing, profile){
-  if(!profile.size) return 0;
-  const tokens = tokenize(listing.role+' '+listing.company+' '+listing.location);
+  if(!profile || (profile.role.size + profile.company.size === 0)) return 0;
+  const role = tokenize(listing.role);
+  const co   = tokenize(listing.company);
+  const loc  = tokenize(listing.location);
   let score = 0;
-  for(const tok of tokens){
-    score += profile.get(tok) || 0;
-  }
+  // title function words hitting your function words: the big signal
+  for(const t of role) score += (profile.role.get(t) || 0) * 1.0;
+  // the listing's company being one you've liked: mild positive
+  for(const t of co)   score += (profile.company.get(t) || 0) * 0.35;
+  // a title word matching a company you applied to: weak
+  for(const t of role) score += (profile.company.get(t) || 0) * 0.2;
+  // location agreement: barely counts — convenience, not fit
+  for(const t of loc)  score += (profile.location.get(t) || 0) * 0.15;
+  // category affinity (software / data / quant...) from boards-applied entries
+  score += (profile.section.get(listing.section) || 0) * 0.8;
   return score - (listing.ageDays ?? 9999) * 0.001;
 }
 
-// your strongest positive terms, for the summary line
+// the strongest positive function words, for the summary line
 function topTerms(profile, n){
-  return [...profile.entries()]
+  return [...profile.role.entries()]
     .filter(([t,v])=> v > 0)
     .sort((a,b)=> b[1]-a[1])
     .slice(0, n)
